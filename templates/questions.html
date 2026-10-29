@@ -137,7 +137,7 @@
                     <div class="d-flex align-items-center gap-1">
                         <span class="small text-muted me-2">Test Your Choice:</span>
                         {% for opt_key in ['A', 'B', 'C', 'D'] %}
-                        <button type="button" class="btn btn-sm btn-light border py-1 px-2 fw-bold" onclick="testOptionAnswer({{ q.id }}, '{{ opt_key }}')">
+                        <button type="button" class="btn btn-sm answer-choice-button py-1 px-2 fw-bold" data-question-id="{{ q.id }}" data-choice="{{ opt_key }}" onclick="testOptionAnswer({{ q.id }}, '{{ opt_key }}')">
                             {{ opt_key }}
                         </button>
                         {% endfor %}
@@ -214,6 +214,17 @@ async function testOptionAnswer(questionId, chosenOption) {
         });
         const data = await response.json();
         if (data.success) {
+            const questionCard = document.getElementById(`question_card_${questionId}`);
+            const choiceButtons = questionCard.querySelectorAll('.answer-choice-button');
+            choiceButtons.forEach(button => {
+                button.classList.remove('is-correct', 'is-wrong');
+                if (button.dataset.choice === chosenOption) {
+                    button.classList.add(data.is_correct ? 'is-correct' : 'is-wrong');
+                } else if (!data.is_correct && button.dataset.choice === data.correct_answer) {
+                    button.classList.add('is-correct');
+                }
+            });
+
             if (data.is_correct) {
                 showToast(`Correct! Option ${chosenOption} is right.`, 'success');
             } else {

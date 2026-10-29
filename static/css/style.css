@@ -526,3 +526,17 @@ a:hover {
   right: 1.5rem;
   z-index: 1090;
 }
+
+.answer-choice-button.is-correct,
+.question-answer-option.is-correct {
+  background-color: #dcfce7 !important;
+  border-color: #16a34a !important;
+  color: #166534 !important;
+}
+
+.answer-choice-button.is-wrong,
+.question-answer-option.is-wrong {
+  background-color: #fee2e2 !important;
+  border-color: #dc2626 !important;
+  color: #991b1b !important;
+}

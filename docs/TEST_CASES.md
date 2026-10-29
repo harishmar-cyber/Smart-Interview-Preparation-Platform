@@ -46,15 +46,16 @@
 | TC-037 | FR-003, FR-021 | Deny student admin provisioning | Student is logged in | POST the admin creation endpoint | Valid-looking admin details | Request is denied and no admin account is created | Targeted pytest observed redirect and no account | Pass | `tests/test_admin.py` |
 | TC-038 | FR-015 | Render HR administration pages | Admin is logged in | Open `/admin/hr` and `/admin/users` | Empty test database | Both pages render with their forms and empty states | Targeted pytest observed HTTP 200 for both pages | Pass | `tests/test_admin.py` |
 | TC-039 | FR-015 | Manage coding problems from admin | Admin is logged in | Open coding list/create/edit; create then update a problem | Valid test-case JSON array | Pages render and create/edit changes persist | Full pytest observed list, create, and edit success including solution explanation | Pass | `tests/test_admin.py` |
+| TC-040 | FR-005 | Display correct and incorrect question answer states | Student and question exist | Select an incorrect answer in practice; inspect both question views | Wrong choice `A`; correct choice `B` | API reports incorrect; selected answer is styled red and correct answer green | Targeted pytest confirmed incorrect response and feedback hooks in both views | Pass | `tests/test_questions.py` |
 
 ## Automated Test Mapping
 
 | Test module | Verified behavior |
 |---|---|
 | `tests/test_auth.py` | Registration stores a password hash, duplicate registration is rejected, wrong-password login is rejected |
-| `tests/test_questions.py` | Search/detail rendering and bookmark persistence |
+| `tests/test_questions.py` | Search/detail rendering, bookmark persistence, and incorrect-answer feedback state |
 | `tests/test_mock_tests.py` | Answer-key omission, server-side score persistence, owner authorization |
 | `tests/test_recommendations.py` | Onboarding recommendations are stored without performance history |
 | `tests/test_admin.py` | Student denial and admin dashboard access |
 
-Latest executed command: `.venv\Scripts\python.exe -m pytest -q` (**17 passed**). Pytest emitted SQLAlchemy deprecation and model-name collection warnings; they did not fail the run. Pending cases have not been claimed as passed.
+Latest executed command: `.venv\Scripts\python.exe -m pytest -q` (**18 passed**). Pytest emitted SQLAlchemy deprecation and model-name collection warnings; they did not fail the run. Pending cases have not been claimed as passed.
