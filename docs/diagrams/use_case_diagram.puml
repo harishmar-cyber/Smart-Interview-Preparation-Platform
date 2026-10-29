@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+actor "Student" as Student
+actor "Admin" as Admin
+rectangle "Smart Interview Preparation Platform" {
+  usecase "Register" as UC_Register
+  usecase "Log in / Log out" as UC_Auth
+  usecase "Browse and filter\nquestions" as UC_Browse
+  usecase "Practice questions\nand bookmark" as UC_QuestionPractice
+  usecase "Take timed\nmock tests" as UC_Test
+  usecase "Submit coding\nsolutions" as UC_Code
+  usecase "Practice HR\nquestions" as UC_HR
+  usecase "View progress" as UC_Progress
+  usecase "Receive / complete\nrecommendations" as UC_Recommend
+  usecase "Manage profile" as UC_Profile
+  usecase "Manage questions" as UC_ManageQuestions
+  usecase "Manage categories" as UC_ManageCategories
+  usecase "Manage tests" as UC_ManageTests
+  usecase "Manage coding and\nHR content" as UC_ManagePractice
+  usecase "View student\nperformance" as UC_AdminAnalytics
+}
+Student --> UC_Register
+Student --> UC_Auth
+Student --> UC_Browse
+Student --> UC_QuestionPractice
+Student --> UC_Test
+Student --> UC_Code
+Student --> UC_HR
+Student --> UC_Progress
+Student --> UC_Recommend
+Student --> UC_Profile
+Admin --> UC_Auth
+Admin --> UC_ManageQuestions
+Admin --> UC_ManageCategories
+Admin --> UC_ManageTests
+Admin --> UC_ManagePractice
+Admin --> UC_AdminAnalytics
+note bottom of UC_ManageCategories
+  Category administration is a requested
+  extension; current categories are seeded.
+end note
+@enduml

@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Taking Test: {{ mock_test.title }} | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-4">
+    <!-- Test Top Bar with Timer -->
+    <div class="test-header-bar">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark">{{ mock_test.title }}</h4>
+            <small class="text-muted">{{ questions|length }} Questions • {{ mock_test.duration_minutes }} Minutes Allotted</small>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="timer-display" id="timerCountdown">
+                <i class="far fa-clock"></i> --:--
+            </div>
+            <button type="button" class="btn btn-danger btn-pill px-4 shadow-sm" id="submitTestBtn">
+                <i class="fas fa-paper-plane me-1"></i> Submit Test
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Question Area -->
+        <div class="col-lg-8">
+            <div class="card-modern p-4 p-md-5 mb-4">
+                <!-- Question Metadata Badges -->
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill" id="questionCounterText">
+                            Question 1 of {{ questions|length }}
+                        </span>
+                        <span class="badge bg-secondary-subtle text-secondary" id="questionCategoryText">Category</span>
+                        <span class="badge bg-light text-dark border" id="questionDifficultyBadge">Medium</span>
+                    </div>
+                    <span class="badge bg-success-subtle text-success fs-6" id="questionMarksBadge">1 Mark</span>
+                </div>
+
+                <!-- Question Text -->
+                <h4 class="fw-bold text-dark mb-4" id="questionBodyText">
+                    Loading question...
+                </h4>
+
+                <!-- Options List Container -->
+                <div id="optionsListContainer" class="mb-4">
+                    <!-- Dynamically rendered by mock_test.js -->
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top flex-wrap gap-2">
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary" id="prevQuestionBtn">
+                            <i class="fas fa-arrow-left me-1"></i> Previous
+                        </button>
+                        <button type="button" class="btn btn-outline-warning" id="markReviewBtn">
+                            <i class="far fa-flag me-1"></i> Mark for Review
+                        </button>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light border text-muted" id="clearAnswerBtn">
+                            <i class="fas fa-undo me-1"></i> Clear Choice
+                        </button>
+                        <button type="button" class="btn btn-primary px-4" id="nextQuestionBtn">
+                            Next <i class="fas fa-arrow-right ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Question Palette Sidebar -->
+        <div class="col-lg-4">
+            <div class="card-modern p-4 sticky-top" style="top: 90px;">
+                <h5 class="fw-bold mb-3">Question Palette</h5>
+
+                <!-- Legend -->
+                <div class="row g-2 mb-3 small text-muted">
+                    <div class="col-6 d-flex align-items-center gap-2">
+                        <span class="question-palette-btn palette-answered" style="width: 20px; height: 20px;"></span>
+                        <span>Answered (<strong id="paletteAnsweredCount">0</strong>)</span>
+                    </div>
+                    <div class="col-6 d-flex align-items-center gap-2">
+                        <span class="question-palette-btn" style="width: 20px; height: 20px;"></span>
+                        <span>Unanswered (<strong id="paletteUnansweredCount">0</strong>)</span>
+                    </div>
+                    <div class="col-6 d-flex align-items-center gap-2">
+                        <span class="question-palette-btn palette-review" style="width: 20px; height: 20px;"></span>
+                        <span>Review (<strong id="paletteReviewCount">0</strong>)</span>
+                    </div>
+                    <div class="col-6 d-flex align-items-center gap-2">
+                        <span class="question-palette-btn palette-current" style="width: 20px; height: 20px;"></span>
+                        <span>Current</span>
+                    </div>
+                </div>
+
+                <!-- Palette Grid -->
+                <div class="d-flex flex-wrap gap-2 pt-3 border-top mb-4" id="questionPaletteGrid">
+                    <!-- Dynamically populated buttons -->
+                </div>
+
+                <div class="p-3 bg-light rounded-3 text-muted small">
+                    <i class="fas fa-info-circle text-primary me-1"></i> Your answers are safely stored in browser memory and validated server-side upon submission.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submission Confirmation Modal -->
+<div class="modal fade" id="confirmSubmitModal" tabindex="-1" aria-labelledby="submitModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold" id="submitModalLabel">
+                    <i class="fas fa-clipboard-check text-primary me-2"></i> Confirm Test Submission
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <p class="mb-3">Are you sure you want to finish and submit your assessment?</p>
+                <div class="row g-2 text-center p-3 bg-light rounded-3 mb-3">
+                    <div class="col-4">
+                        <div class="fs-4 fw-bold text-success" id="modalAnsweredCount">0</div>
+                        <small class="text-muted">Answered</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="fs-4 fw-bold text-secondary" id="modalUnansweredCount">0</div>
+                        <small class="text-muted">Unanswered</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="fs-4 fw-bold text-warning" id="modalReviewCount">0</div>
+                        <small class="text-muted">For Review</small>
+                    </div>
+                </div>
+                <small class="text-muted">Once submitted, you will immediately receive your scorecard and solutions review.</small>
+            </div>
+            <div class="modal-footer border-top">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Return to Test</button>
+                <button type="button" class="btn btn-success btn-pill px-4" id="confirmFinalSubmitBtn">
+                    Submit & View Results
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/mock_test.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const testData = {
+        attemptId: {{ attempt.id }},
+        questions: {{ questions|tojson }},
+        remainingSeconds: {{ remaining_seconds }},
+        totalSeconds: {{ total_seconds }},
+        savedAnswers: {{ saved_answers|tojson }}
+    };
+    initMockTest(testData);
+});
+</script>
+{% endblock %}

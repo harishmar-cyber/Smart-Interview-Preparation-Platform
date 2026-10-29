@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Question {{ question.id }} | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 900px;">
+    <a class="text-decoration-none small" href="{{ url_for('questions.index') }}">
+        <i class="fas fa-arrow-left me-1"></i> Back to question bank
+    </a>
+    <article class="card-modern p-4 p-md-5 mt-3">
+        <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+            <span class="badge bg-primary-subtle text-primary">{{ question.category.name }}</span>
+            <span class="badge bg-light text-dark border">{{ question.difficulty }}</span>
+            {% if attempt %}
+            <span class="badge {{ 'bg-success' if attempt.is_correct else 'bg-warning text-dark' }}">
+                {{ 'Practiced correctly' if attempt.is_correct else 'Needs another attempt' }}
+            </span>
+            {% endif %}
+        </div>
+        <h1 class="h3 fw-bold mb-4">{{ question.question_text }}</h1>
+        <div class="d-grid gap-2 mb-4">
+            {% for key, option in [('A', question.option_a), ('B', question.option_b), ('C', question.option_c), ('D', question.option_d)] %}
+                {% if option %}
+                <button class="btn btn-light border text-start p-3" type="button" onclick="submitQuestionAnswer('{{ key }}')">
+                    <span class="fw-bold text-primary me-2">{{ key }}.</span>{{ option }}
+                </button>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#answerExplanation">
+                <i class="fas fa-eye me-1"></i> Reveal answer
+            </button>
+            <button class="btn btn-outline-warning" type="button" id="bookmarkButton" aria-pressed="{{ 'true' if is_bookmarked else 'false' }}">
+                <i class="{{ 'fas' if is_bookmarked else 'far' }} fa-bookmark me-1"></i>
+                {{ 'Remove bookmark' if is_bookmarked else 'Bookmark question' }}
+            </button>
+            <span id="practiceFeedback" class="small" role="status" aria-live="polite"></span>
+        </div>
+        <div class="collapse mt-4" id="answerExplanation">
+            <div class="p-3 bg-success-subtle border border-success-subtle rounded">
+                <div class="fw-bold text-success">Correct answer: {{ question.correct_answer }}</div>
+                <p class="mb-0 mt-2">{{ question.explanation or 'No explanation has been added yet.' }}</p>
+            </div>
+        </div>
+    </article>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const questionId = {{ question.id }};
+
+async function submitQuestionAnswer(selectedOption) {
+    const response = await fetch(`/questions/${questionId}/attempt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selected_option: selectedOption })
+    });
+    const result = await response.json();
+    const feedback = document.getElementById('practiceFeedback');
+    feedback.textContent = result.success
+        ? (result.is_correct ? 'Correct answer.' : `Not quite. Correct answer: ${result.correct_answer}.`)
+        : result.message;
+}
+
+document.getElementById('bookmarkButton').addEventListener('click', async () => {
+    const response = await fetch(`/questions/${questionId}/bookmark`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    });
+    const result = await response.json();
+    if (result.success) window.location.reload();
+});
+</script>
+{% endblock %}

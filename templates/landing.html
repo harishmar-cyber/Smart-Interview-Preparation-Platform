@@ -1,0 +1,429 @@
+{% extends 'base.html' %}
+
+{% block title %}SmartPrep | Master Campus & Technical Interviews{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 animate-fade-up">
+                <div class="hero-badge">
+                    <i class="fas fa-sparkles text-primary"></i>
+                    <span>All-in-One Placement Preparation Engine</span>
+                </div>
+                <h1 class="hero-title">
+                    Your Dream Job Starts With <span class="text-gradient">Smart Preparation.</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Tackle technical interviews, timed placement mock tests, beginner-to-advanced coding challenges, and HR rounds in a single unified platform. Powered by real performance analytics and smart study recommendations.
+                </p>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('student.dashboard') }}" class="btn btn-primary btn-pill px-4 py-3 shadow">
+                            <i class="fas fa-tachometer-alt me-2"></i> Go to My Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-pill px-4 py-3 shadow">
+                            <i class="fas fa-rocket me-2"></i> Start Preparing Free
+                        </a>
+                        <a href="#features" class="btn btn-outline-primary btn-pill px-4 py-3">
+                            <i class="fas fa-compass me-2"></i> Explore Features
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="d-flex align-items-center gap-4 text-muted small">
+                    <div><i class="fas fa-check-circle text-success me-1"></i> 70+ Curated Questions</div>
+                    <div><i class="fas fa-check-circle text-success me-1"></i> Timed Assessments</div>
+                    <div><i class="fas fa-check-circle text-success me-1"></i> Safe Python Sandbox</div>
+                </div>
+            </div>
+
+            <!-- Hero Visual & Floating Stat Cards -->
+            <div class="col-lg-6 animate-fade-up animate-delay-1">
+                <div class="position-relative">
+                    <!-- Floating Badge Top Left -->
+                    <div class="floating-stat-badge pos-top-left animate-float">
+                        <div class="stat-icon bg-success-subtle text-success" style="width: 44px; height: 44px;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6 text-dark">78.5% Avg Score</div>
+                            <small class="text-muted">Placement Ready</small>
+                        </div>
+                    </div>
+
+                    <!-- Main Hero Preview Card -->
+                    <div class="hero-visual-card">
+                        <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="fas fa-laptop-code"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Live Assessment Center</h6>
+                                    <small class="text-muted">SmartPrep Active Session</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill">
+                                <i class="fas fa-circle fa-2xs me-1"></i> Live
+                            </span>
+                        </div>
+
+                        <!-- Mini Subject Bars preview -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small fw-bold mb-1">
+                                <span>Java & OOP Concepts</span>
+                                <span class="text-primary">85% Mastery</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar gradient-primary" style="width: 85%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small fw-bold mb-1">
+                                <span>Data Structures & Algorithms</span>
+                                <span class="text-secondary">72% Progress</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar gradient-accent" style="width: 72%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between small fw-bold mb-1">
+                                <span>DBMS & SQL Queries</span>
+                                <span class="text-success">90% High Score</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar gradient-emerald" style="width: 90%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Rule Recommendation Preview Card -->
+                        <div class="p-3 bg-light rounded-3 border-start border-4 border-warning">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-lightbulb text-warning"></i>
+                                <span class="fw-bold small">Smart Rule Recommendation:</span>
+                            </div>
+                            <p class="small text-muted mb-0">
+                                "Revise String & Array operations in Python Coding Practice to push overall placement benchmark above 80%."
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Floating Badge Bottom Right -->
+                    <div class="floating-stat-badge pos-bottom-right animate-float" style="animation-delay: -2s;">
+                        <div class="stat-icon bg-warning-subtle text-warning" style="width: 44px; height: 44px;">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6 text-dark">5 Day Streak</div>
+                            <small class="text-muted">Consistent Learner</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Floating Stats Counter Section -->
+<section class="py-4 border-top border-bottom bg-white">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-3 col-6">
+                <div class="p-3">
+                    <div class="stat-value text-primary"><span class="stat-counter" data-target="{{ stats.questions_count }}">0</span>+</div>
+                    <div class="stat-label">Interview Questions</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3">
+                    <div class="stat-value text-secondary"><span class="stat-counter" data-target="{{ stats.tests_count }}">0</span>+</div>
+                    <div class="stat-label">Timed Mock Tests</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3">
+                    <div class="stat-value text-accent"><span class="stat-counter" data-target="{{ stats.problems_count }}">0</span>+</div>
+                    <div class="stat-label">Coding Challenges</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3">
+                    <div class="stat-value text-success"><span class="stat-counter" data-target="{{ stats.hr_count }}">0</span>+</div>
+                    <div class="stat-label">HR STAR Scenarios</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Grid Section -->
+<section class="py-5" id="features">
+    <div class="container py-4">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <span class="badge-soft-primary mb-2">Platform Capabilities</span>
+            <h2 class="display-6 fw-bold">Everything Needed for Placement Success</h2>
+            <p class="text-muted">Structured learning designed to eliminate guesswork and target your weak topics effectively.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Feature 1 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card-modern h-100 p-4">
+                    <div class="stat-icon bg-primary-subtle text-primary mb-3">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Curated Question Bank</h5>
+                    <p class="text-muted small mb-3">
+                        Over 70 high-yield interview questions categorized across Java, Python, C++, DBMS, OS, Networks, DSA, and Aptitude with clear conceptual explanations.
+                    </p>
+                    <a href="{{ url_for('questions.index') }}" class="small fw-semibold text-primary">Browse Questions <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card-modern h-100 p-4">
+                    <div class="stat-icon bg-secondary-subtle text-secondary mb-3">
+                        <i class="fas fa-stopwatch"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Timed Mock Assessments</h5>
+                    <p class="text-muted small mb-3">
+                        Simulate real campus placement online tests with countdown timers, question palettes, server-side scoring, and instant score breakdowns.
+                    </p>
+                    <a href="{{ url_for('mock_tests.index') }}" class="small fw-semibold text-secondary">View Mock Tests <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card-modern h-100 p-4">
+                    <div class="stat-icon bg-info-subtle text-accent mb-3">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Safe Coding Practice</h5>
+                    <p class="text-muted small mb-3">
+                        Solve 15 essential programming problems directly in the browser with an isolated execution environment, hidden test cases, and runtime profiling.
+                    </p>
+                    <a href="{{ url_for('coding.index') }}" class="small fw-semibold text-accent">Practice Coding <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card-modern h-100 p-4">
+                    <div class="stat-icon bg-warning-subtle text-warning mb-3">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">HR Interview Masterclass</h5>
+                    <p class="text-muted small mb-3">
+                        20 behavioral and situational questions with STAR framework models, tips, sample responses, and personal answer draft saving.
+                    </p>
+                    <a href="{{ url_for('hr.index') }}" class="small fw-semibold text-warning">Prepare HR Answers <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card-modern h-100 p-4">
+                    <div class="stat-icon bg-success-subtle text-success mb-3">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Performance Analytics</h5>
+                    <p class="text-muted small mb-3">
+                        Interactive Chart.js visualizations that track subject accuracy, test score progression over time, problem solving velocity, and preparation streaks.
+                    </p>
+                    <a href="{{ url_for('analytics.index') }}" class="small fw-semibold text-success">Explore Analytics <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card-modern h-100 p-4">
+                    <div class="stat-icon bg-danger-subtle text-highlight mb-3">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Smart Recommendation Engine</h5>
+                    <p class="text-muted small mb-3">
+                        Rule-based advisor analyzing real student scores to pinpoint weaknesses (&lt;50%), suggest practice priorities, and guide next steps.
+                    </p>
+                    <a href="{{ url_for('recommendations.index') }}" class="small fw-semibold text-highlight">See Recommendations <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Preparation Workflow Section -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge-soft-secondary mb-2">Proven Methodology</span>
+            <h2 class="display-6 fw-bold">How SmartPrep Works</h2>
+            <p class="text-muted">A clear, 4-step structured pathway to crack technical placement rounds.</p>
+        </div>
+
+        <div class="row g-4 position-relative">
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100 card-modern">
+                    <div class="stat-icon gradient-primary text-white mx-auto mb-3 shadow">1</div>
+                    <h5 class="fw-bold">Diagnostic Assessment</h5>
+                    <p class="text-muted small mb-0">Take a timed mock test to establish your baseline proficiency across CS subjects.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100 card-modern">
+                    <div class="stat-icon gradient-accent text-white mx-auto mb-3 shadow">2</div>
+                    <h5 class="fw-bold">Smart Analysis</h5>
+                    <p class="text-muted small mb-0">The rule engine flags topics below 50% as high priority and categorizes your strength areas.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100 card-modern">
+                    <div class="stat-icon gradient-emerald text-white mx-auto mb-3 shadow">3</div>
+                    <h5 class="fw-bold">Targeted Practice</h5>
+                    <p class="text-muted small mb-0">Solve recommended coding challenges, practice technical MCQs, and draft structured HR responses.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 text-center">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100 card-modern">
+                    <div class="stat-icon gradient-warm text-white mx-auto mb-3 shadow">4</div>
+                    <h5 class="fw-bold">Placement Readiness</h5>
+                    <p class="text-muted small mb-0">Monitor your streak, observe score improvements on Chart.js, and walk into interviews confident.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Subject / Category Showcase -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+            <div>
+                <span class="badge-soft-info mb-2">Comprehensive Syllabus</span>
+                <h2 class="h3 fw-bold mb-0">Explore by Subject Category</h2>
+            </div>
+            <a href="{{ url_for('questions.index') }}" class="btn btn-outline-primary btn-sm btn-pill">
+                View All Categories <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-3">
+            {% for cat in categories %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <a href="{{ url_for('questions.index', category=cat.id) }}" class="card-modern p-3 d-flex align-items-center gap-3 text-dark text-decoration-none">
+                    <div class="stat-icon" style="background-color: {{ cat.color }}18; color: {{ cat.color }}; width: 48px; height: 48px;">
+                        <i class="fas {{ cat.icon }}"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">{{ cat.name }}</div>
+                        <small class="text-muted">{{ cat.questions.count() }} questions</small>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Illustrative Testimonials Section -->
+<section class="py-5 bg-white border-top">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge-soft-warning mb-2">Student Experiences</span>
+            <h2 class="display-6 fw-bold">Demonstrated Placement Impact</h2>
+            <p class="text-muted small fst-italic">Illustrative feedback collected from student academic evaluation sessions.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-modern p-4 h-100">
+                    <div class="text-warning mb-3">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="small text-muted mb-3">
+                        "The timed mock tests felt just like actual campus screening tests. Getting instant server-side score breakdowns showed me exactly where I was losing marks in Operating Systems."
+                    </p>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar" style="width: 36px; height: 36px; font-size: 0.85rem;">P</div>
+                        <div>
+                            <div class="fw-bold small">Priya Sharma</div>
+                            <small class="text-muted">Placed at Tier-1 Tech Firm</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-modern p-4 h-100">
+                    <div class="text-warning mb-3">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="small text-muted mb-3">
+                        "The rule-based recommendations were a game changer. I used to practice random problems, but SmartPrep flagged my Coding Practice at 45% and pushed me to solve array challenges first."
+                    </p>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar" style="width: 36px; height: 36px; font-size: 0.85rem;">R</div>
+                        <div>
+                            <div class="fw-bold small">Rohit Verma</div>
+                            <small class="text-muted">B.Tech CSE Graduate</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-modern p-4 h-100">
+                    <div class="text-warning mb-3">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="small text-muted mb-3">
+                        "Writing my own HR answers using the STAR templates and seeing my practice completion percentage gave me the confidence I needed for managerial interview rounds."
+                    </p>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar" style="width: 36px; height: 36px; font-size: 0.85rem;">A</div>
+                        <div>
+                            <div class="fw-bold small">Ananya Nair</div>
+                            <small class="text-muted">Software Engineer Intern</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-5">
+    <div class="container">
+        <div class="p-5 rounded-4 gradient-dark text-white text-center shadow-lg position-relative overflow-hidden">
+            <h2 class="display-6 fw-bold mb-3">Ready to Crack Your Placement Interviews?</h2>
+            <p class="text-light opacity-75 max-w-600 mx-auto mb-4">
+                Join our student learning platform today. Practice categorized questions, take timed tests, run Python code, and track your readiness.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('student.dashboard') }}" class="btn btn-primary btn-pill px-4 py-3">
+                        <i class="fas fa-tachometer-alt me-2"></i> Open Dashboard
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-pill px-4 py-3 shadow">
+                        <i class="fas fa-user-plus me-2"></i> Register Free Account
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-pill px-4 py-3">
+                        <i class="fas fa-sign-in-alt me-2"></i> Login with Demo Credentials
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

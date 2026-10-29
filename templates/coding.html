@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Coding Practice | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row align-items-center mb-4 g-3">
+        <div class="col-lg-7">
+            <h2 class="fw-bold mb-1">Coding Practice Sandbox</h2>
+            <p class="text-muted small mb-0">Master essential algorithms with our interactive, safe Python execution environment.</p>
+        </div>
+        <div class="col-lg-5">
+            <!-- Progress Pill Card -->
+            <div class="p-3 bg-white rounded-4 border shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-1 small fw-bold">
+                    <span>Solved Challenges</span>
+                    <span class="text-success">{{ solved_count }} / {{ total_problems }} ({{ progress_percentage }}%)</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar gradient-emerald" style="width: {{ progress_percentage }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Bar -->
+    <div class="card-modern p-3 mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <!-- Category Pills -->
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('coding.index', difficulty=selected_difficulty, status=selected_status) }}" class="badge {{ 'bg-primary text-white' if not selected_category else 'bg-light text-dark border' }} text-decoration-none p-2 rounded-pill">
+                    All Categories
+                </a>
+                {% for cat in categories %}
+                <a href="{{ url_for('coding.index', category=cat, difficulty=selected_difficulty, status=selected_status) }}" class="badge {{ 'bg-primary text-white' if selected_category == cat else 'bg-light text-dark border' }} text-decoration-none p-2 rounded-pill">
+                    {{ cat }}
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Difficulty & Status Dropdowns -->
+            <div class="d-flex gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light border dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown">
+                        Difficulty: {{ selected_difficulty or 'All' }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('coding.index', category=selected_category, status=selected_status) }}">All Difficulties</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('coding.index', category=selected_category, difficulty='Easy', status=selected_status) }}">Easy</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('coding.index', category=selected_category, difficulty='Medium', status=selected_status) }}">Medium</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('coding.index', category=selected_category, difficulty='Hard', status=selected_status) }}">Hard</a></li>
+                    </ul>
+                </div>
+
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light border dropdown-toggle fw-semibold" type="button" data-bs-toggle="dropdown">
+                        Status: {{ selected_status|capitalize or 'All' }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('coding.index', category=selected_category, difficulty=selected_difficulty) }}">All Problems</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('coding.index', category=selected_category, difficulty=selected_difficulty, status='solved') }}">Solved</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('coding.index', category=selected_category, difficulty=selected_difficulty, status='unsolved') }}">Unsolved</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Problem Table / List -->
+    <div class="card-modern p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
+                <thead class="table-light small">
+                    <tr>
+                        <th class="ps-4">Status</th>
+                        <th>Problem Title</th>
+                        <th>Category</th>
+                        <th>Difficulty</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prob in problems %}
+                    {% set is_solved = prob.id in solved_problem_ids %}
+                    <tr>
+                        <td class="ps-4">
+                            {% if is_solved %}
+                                <span class="badge bg-success-subtle text-success p-2 rounded-circle" title="Accepted Solution">
+                                    <i class="fas fa-check"></i>
+                                </span>
+                            {% else %}
+                                <span class="badge bg-light text-muted border p-2 rounded-circle" title="Unsolved">
+                                    <i class="far fa-circle"></i>
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('coding.detail', slug=prob.slug) }}" class="fw-bold text-dark text-decoration-none hover-primary">
+                                {{ prob.title }}
+                            </a>
+                            <small class="text-muted d-block text-truncate" style="max-width: 480px;">{{ prob.description }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">{{ prob.category }}</span>
+                        </td>
+                        <td>
+                            <span class="badge {{ 'bg-success-subtle text-success' if prob.difficulty == 'Easy' else ('bg-warning-subtle text-warning' if prob.difficulty == 'Medium' else 'bg-danger-subtle text-danger') }}">
+                                {{ prob.difficulty }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{{ url_for('coding.detail', slug=prob.slug) }}" class="btn btn-sm {{ 'btn-outline-success' if is_solved else 'btn-primary' }} btn-pill px-3">
+                                {{ 'Solve Again' if is_solved else 'Solve Challenge' }} <i class="fas fa-code ms-1"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

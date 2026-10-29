@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Timed Mock Tests | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-1">Timed Placement Mock Tests</h2>
+            <p class="text-muted small mb-0">Simulate company recruitment tests with real-time countdown timers and server-side evaluation.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <span class="badge bg-primary-subtle text-primary p-2 px-3 rounded-pill fw-semibold">
+                <i class="fas fa-shield-alt me-1"></i> Anti-Cheat Server Grading
+            </span>
+        </div>
+    </div>
+
+    <!-- Available Tests Grid -->
+    <div class="row g-4 mb-5">
+        {% for test in tests %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card-modern h-100 p-4 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge {{ 'bg-success-subtle text-success' if test.difficulty == 'Easy' else ('bg-warning-subtle text-warning' if test.difficulty == 'Medium' else 'bg-danger-subtle text-danger') }} rounded-pill px-3 py-1 fw-bold">
+                            {{ test.difficulty }}
+                        </span>
+                        <div class="text-muted small">
+                            <i class="fas fa-clock text-primary me-1"></i> {{ test.duration_minutes }} Mins
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-2">{{ test.title }}</h5>
+                    <p class="text-muted small mb-3">{{ test.description }}</p>
+
+                    <div class="p-3 bg-light rounded-3 mb-3 small">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Total Questions:</span>
+                            <span class="fw-bold">{{ test.question_count }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Total Marks:</span>
+                            <span class="fw-bold">{{ test.total_marks }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Passing Benchmark:</span>
+                            <span class="fw-bold text-success">{{ test.passing_percentage }}%</span>
+                        </div>
+                        {% if test.id in best_scores %}
+                        <div class="d-flex justify-content-between pt-1 border-top mt-1">
+                            <span class="text-muted">Your Best Score:</span>
+                            <span class="fw-bold text-primary">{{ best_scores[test.id] }}%</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div>
+                    <button type="button" class="btn btn-primary w-100 btn-pill" data-bs-toggle="modal" data-bs-target="#instructionsModal{{ test.id }}">
+                        <i class="fas fa-play me-2"></i> Start Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Modal for Test -->
+        <div class="modal fade" id="instructionsModal{{ test.id }}" tabindex="-1" aria-labelledby="instructionsLabel{{ test.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-bottom">
+                        <h5 class="modal-title fw-bold" id="instructionsLabel{{ test.id }}">
+                            <i class="fas fa-file-alt text-primary me-2"></i> {{ test.title }} Instructions
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <h6 class="fw-bold text-dark mb-2">Important Instructions:</h6>
+                        <ul class="small text-muted mb-4 ps-3">
+                            <li class="mb-2">The test consists of <strong>{{ test.question_count }} multiple choice questions</strong> worth <strong>{{ test.total_marks }} marks</strong>.</li>
+                            <li class="mb-2">Total duration allowed is <strong>{{ test.duration_minutes }} minutes</strong>. A countdown clock will be active.</li>
+                            <li class="mb-2">There is <strong>no negative marking</strong> for incorrect choices.</li>
+                            <li class="mb-2">Questions and answers are evaluated on the server upon submission.</li>
+                            <li class="mb-2">When time expires, your answers will be automatically submitted and scored.</li>
+                            <li>You can flag questions for review and navigate freely using the question palette.</li>
+                        </ul>
+
+                        <div class="alert alert-info py-2 px-3 small mb-0">
+                            <i class="fas fa-info-circle me-1"></i> Ensure a stable connection before proceeding.
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <form method="POST" action="{{ url_for('mock_tests.start_test', test_id=test.id) }}">
+                            <button type="submit" class="btn btn-primary btn-pill px-4">
+                                I Understand, Begin Test <i class="fas fa-arrow-right ms-1"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Past Attempts History Table -->
+    {% if attempts %}
+    <div class="card-modern p-4">
+        <h4 class="fw-bold mb-3">Your Assessment History</h4>
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light small">
+                    <tr>
+                        <th>Test Title</th>
+                        <th>Date & Time</th>
+                        <th>Time Spent</th>
+                        <th>Score</th>
+                        <th>Percentage</th>
+                        <th>Result</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody class="small">
+                    {% for att in attempts %}
+                    <tr>
+                        <td class="fw-bold">{{ att.mock_test.title }}</td>
+                        <td class="text-muted">{{ att.submitted_at.strftime('%b %d, %Y %H:%M') if att.submitted_at else 'N/A' }}</td>
+                        <td class="text-muted">{{ (att.time_taken_seconds // 60) }}m {{ (att.time_taken_seconds % 60) }}s</td>
+                        <td>{{ att.score }} / {{ att.mock_test.total_marks }}</td>
+                        <td><span class="fw-bold">{{ att.percentage }}%</span></td>
+                        <td>
+                            <span class="badge {{ 'bg-success-subtle text-success' if att.is_passed else 'bg-danger-subtle text-danger' }} rounded-pill px-3">
+                                {{ 'PASSED' if att.is_passed else 'NEEDS WORK' }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('mock_tests.view_result', attempt_id=att.id) }}" class="btn btn-sm btn-outline-primary btn-pill">
+                                View Solutions <i class="fas fa-chevron-right fa-xs ms-1"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

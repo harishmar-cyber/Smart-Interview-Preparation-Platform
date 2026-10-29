@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Mock Tests | Admin Control{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-sm btn-light border"><i class="fas fa-arrow-left"></i></a>
+                <h3 class="fw-bold mb-0">Timed Mock Tests Management</h3>
+            </div>
+            <p class="text-muted small mb-0">{{ tests|length }} mock tests configured</p>
+        </div>
+        <a href="{{ url_for('admin.test_create') }}" class="btn btn-primary btn-pill">
+            <i class="fas fa-plus me-1"></i> Create Mock Test
+        </a>
+    </div>
+
+    <div class="card-modern p-0 overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table align-middle table-hover mb-0">
+                <thead class="table-light small">
+                    <tr>
+                        <th class="ps-4">Title</th>
+                        <th>Category</th>
+                        <th>Duration</th>
+                        <th>Questions</th>
+                        <th>Pass %</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="small">
+                    {% for t in tests %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-dark">{{ t.title }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ t.category.name if t.category else 'General' }}</span></td>
+                        <td>{{ t.duration_minutes }} Mins</td>
+                        <td>{{ t.question_count }} Questions</td>
+                        <td>{{ t.passing_percentage }}%</td>
+                        <td>
+                            <span class="badge {{ 'bg-success' if t.is_published else 'bg-secondary' }}">
+                                {{ 'Published' if t.is_published else 'Draft' }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <a href="{{ url_for('admin.test_edit', id=t.id) }}" class="btn btn-sm btn-outline-primary py-1 px-2" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('admin.test_delete', id=t.id) }}" onsubmit="return confirm('Are you sure you want to delete this test?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

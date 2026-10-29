@@ -1,0 +1,403 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="app-container">
+    <!-- Sidebar Component -->
+    <aside class="app-sidebar">
+        <div class="sidebar-header">
+            <div class="user-badge-mini">
+                <div class="user-avatar">
+                    {{ current_user.full_name[0] }}
+                </div>
+                <div class="overflow-hidden">
+                    <div class="fw-bold text-dark text-truncate">{{ current_user.full_name }}</div>
+                    <small class="text-muted d-block text-truncate">{{ current_user.preferred_job_role }}</small>
+                </div>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ url_for('student.dashboard') }}" class="active">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('questions.index') }}">
+                    <i class="fas fa-question-circle"></i> Interview Questions
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('mock_tests.index') }}">
+                    <i class="fas fa-stopwatch"></i> Mock Tests
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('coding.index') }}">
+                    <i class="fas fa-code"></i> Coding Practice
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('hr.index') }}">
+                    <i class="fas fa-user-tie"></i> HR Preparation
+                </a>
+            </li>
+
+            <li class="sidebar-menu-divider">Performance & Intel</li>
+
+            <li>
+                <a href="{{ url_for('analytics.index') }}">
+                    <i class="fas fa-chart-line"></i> My Progress
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('recommendations.index') }}" class="d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-lightbulb"></i> Recommendations</span>
+                    {% if active_recs_count > 0 %}
+                    <span class="badge bg-danger rounded-pill">{{ active_recs_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <li class="sidebar-menu-divider">Account</li>
+
+            <li>
+                <a href="{{ url_for('auth.profile') }}">
+                    <i class="fas fa-user-cog"></i> My Profile
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('auth.logout') }}" class="text-danger">
+                    <i class="fas fa-sign-out-alt text-danger"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-content">
+        <!-- Top Banner / Welcome -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Welcome back, <span class="text-gradient">{{ current_user.full_name.split()[0] }}!</span> 👋</h2>
+                <p class="text-muted mb-0">Target Role: <strong>{{ current_user.preferred_job_role }}</strong> | Department: {{ current_user.education }}</p>
+            </div>
+            <!-- Streak Flame Widget -->
+            <div class="streak-widget">
+                <div class="streak-flame me-3">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div>
+                    <div class="fs-4 fw-extrabold text-dark">{{ metrics.streak }} Day{{ 's' if metrics.streak != 1 else '' }}</div>
+                    <small class="text-danger fw-semibold">Active Prep Streak</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 Key Stat Cards -->
+        <div class="row g-3 mb-4">
+            <!-- Stat 1: Mock Tests -->
+            <div class="col-xl-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary-subtle text-primary">
+                        <i class="fas fa-stopwatch"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ metrics.tests_completed }}</div>
+                        <div class="stat-label">Tests Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat 2: Average Score -->
+            <div class="col-xl-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success-subtle text-success">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ metrics.avg_score }}%</div>
+                        <div class="stat-label">Average Test Score</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat 3: Coding Solved -->
+            <div class="col-xl-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-info-subtle text-accent">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ metrics.coding_solved }} <span class="fs-6 text-muted font-normal">/ {{ metrics.total_coding }}</span></div>
+                        <div class="stat-label">Coding Problems Solved</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat 4: Questions Attempted -->
+            <div class="col-xl-3 col-sm-6">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning-subtle text-warning">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ metrics.questions_attempted }} <span class="fs-6 text-muted font-normal">/ {{ metrics.total_questions }}</span></div>
+                        <div class="stat-label">Questions Attempted</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Preparation Progress Card -->
+        <div class="card-modern p-4 mb-4">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                <div>
+                    <h5 class="fw-bold mb-1">Overall Placement Readiness</h5>
+                    <p class="text-muted small mb-0">Weighted composite across Mock Tests (35%), Coding (35%), Question Bank (15%), and HR Prep (15%)</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="display-6 fw-bold text-primary">{{ metrics.overall_progress }}%</span>
+                </div>
+            </div>
+            <div class="progress mb-2" style="height: 12px;">
+                <div class="progress-bar gradient-primary" role="progressbar" style="width: {{ metrics.overall_progress }}%;" aria-valuenow="{{ metrics.overall_progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="d-flex justify-content-between text-muted small">
+                <span>0% Beginner</span>
+                <span>50% Intermediate</span>
+                <span>80%+ Placement Benchmark</span>
+                <span>100% Master</span>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Left Column: Smart Recommendations -->
+            <div class="col-lg-7">
+                <div class="card-modern p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="stat-icon bg-warning-subtle text-warning" style="width: 36px; height: 36px; font-size: 1rem;">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Smart Study Recommendations</h5>
+                        </div>
+                        <a href="{{ url_for('recommendations.index') }}" class="small fw-semibold text-primary">View All ({{ active_recs_count }})</a>
+                    </div>
+
+                    {% if recommendations %}
+                        <div class="d-flex flex-column gap-3">
+                            {% for rec in recommendations %}
+                            <div class="p-3 rounded-3 border-start border-4 border-{{ rec.badge_color }} bg-light">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <span class="badge bg-{{ rec.badge_color }}-subtle text-{{ rec.badge_color }} fw-bold">{{ rec.priority }} Priority</span>
+                                    <small class="text-muted">{{ rec.created_at.strftime('%b %d') }}</small>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-1">{{ rec.title }}</h6>
+                                <p class="small text-muted mb-2">{{ rec.explanation }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small fw-semibold text-dark"><i class="fas fa-arrow-circle-right text-primary me-1"></i> {{ rec.suggested_action }}</span>
+                                    <a href="{{ rec.target_url or url_for('questions.index') }}" class="btn btn-sm btn-primary btn-pill py-1 px-3">
+                                        Practice Now
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <!-- Empty State for new users -->
+                        <div class="text-center py-4">
+                            <i class="fas fa-graduation-cap text-muted fa-3x mb-3"></i>
+                            <h6 class="fw-bold">No active study alerts</h6>
+                            <p class="text-muted small">Take your first mock test or solve a coding problem to trigger personalized guidance.</p>
+                            <a href="{{ url_for('mock_tests.index') }}" class="btn btn-primary btn-pill btn-sm">
+                                Start Your First Practice
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Column: Subject Performance Breakdown Chart -->
+            <div class="col-lg-5">
+                <div class="card-modern p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="stat-icon bg-primary-subtle text-primary" style="width: 36px; height: 36px; font-size: 1rem;">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <h5 class="fw-bold mb-0">Subject Accuracy</h5>
+                        </div>
+                        <a href="{{ url_for('analytics.index') }}" class="small fw-semibold text-primary">Full Report</a>
+                    </div>
+
+                    <div style="height: 240px; position: relative;">
+                        <canvas id="categoryBarChart"></canvas>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-top d-flex justify-content-between small text-muted">
+                        <div>
+                            <span class="fw-bold text-success"><i class="fas fa-arrow-up me-1"></i> Strongest:</span>
+                            <span>{{ metrics.strongest_subject or 'Pending Data' }}</span>
+                        </div>
+                        <div>
+                            <span class="fw-bold text-danger"><i class="fas fa-arrow-down me-1"></i> Weakest:</span>
+                            <span>{{ metrics.weakest_subject or 'Pending Data' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Continue Learning & Quick Access Section -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="card-modern p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Continue Learning</h5>
+                        <span class="small text-muted">Recommended Tests</span>
+                    </div>
+
+                    <div class="row g-3">
+                        {% for test in suggested_tests %}
+                        <div class="col-md-4">
+                            <div class="p-3 rounded-3 border bg-white h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <span class="badge bg-primary-subtle text-primary mb-2">{{ test.difficulty }}</span>
+                                    <h6 class="fw-bold mb-1 text-truncate" title="{{ test.title }}">{{ test.title }}</h6>
+                                    <p class="small text-muted mb-2">{{ test.duration_minutes }} mins • {{ test.total_marks }} marks</p>
+                                </div>
+                                <form method="POST" action="{{ url_for('mock_tests.start_test', test_id=test.id) }}">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm w-100 btn-pill">
+                                        <i class="fas fa-play me-1"></i> Start Test
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Shortcuts -->
+            <div class="col-lg-4">
+                <div class="card-modern p-4 h-100">
+                    <h5 class="fw-bold mb-3">Quick Navigation</h5>
+                    <div class="d-flex flex-column gap-2">
+                        <a href="{{ url_for('coding.index') }}" class="btn btn-light text-start d-flex align-items-center justify-content-between p-2 rounded-3 border">
+                            <span class="d-flex align-items-center gap-2">
+                                <i class="fas fa-code text-cyan"></i> Python Coding IDE
+                            </span>
+                            <i class="fas fa-chevron-right text-muted small"></i>
+                        </a>
+                        <a href="{{ url_for('hr.index') }}" class="btn btn-light text-start d-flex align-items-center justify-content-between p-2 rounded-3 border">
+                            <span class="d-flex align-items-center gap-2">
+                                <i class="fas fa-user-tie text-warning"></i> HR Practice & STAR
+                            </span>
+                            <i class="fas fa-chevron-right text-muted small"></i>
+                        </a>
+                        <a href="{{ url_for('questions.index') }}?bookmarked=1" class="btn btn-light text-start d-flex align-items-center justify-content-between p-2 rounded-3 border">
+                            <span class="d-flex align-items-center gap-2">
+                                <i class="fas fa-bookmark text-primary"></i> My Bookmarked Questions
+                            </span>
+                            <i class="fas fa-chevron-right text-muted small"></i>
+                        </a>
+                        <a href="{{ url_for('analytics.index') }}" class="btn btn-light text-start d-flex align-items-center justify-content-between p-2 rounded-3 border">
+                            <span class="d-flex align-items-center gap-2">
+                                <i class="fas fa-chart-line text-success"></i> My Detailed Analytics
+                            </span>
+                            <i class="fas fa-chevron-right text-muted small"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activities Feed & Recent Tests -->
+        <div class="row g-4">
+            <!-- Recent Test Attempts Table -->
+            <div class="col-lg-7">
+                <div class="card-modern p-4">
+                    <h5 class="fw-bold mb-3">Recent Test Attempts</h5>
+                    {% if metrics.recent_tests %}
+                    <div class="table-responsive">
+                        <table class="table align-middle table-hover small">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Test Name</th>
+                                    <th>Date</th>
+                                    <th>Score</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for att in metrics.recent_tests %}
+                                <tr>
+                                    <td class="fw-semibold text-truncate" style="max-width: 180px;">{{ att.mock_test.title }}</td>
+                                    <td class="text-muted">{{ att.submitted_at.strftime('%b %d, %Y') if att.submitted_at else 'In Progress' }}</td>
+                                    <td>
+                                        <span class="fw-bold text-dark">{{ att.score }}/{{ att.mock_test.total_marks }}</span>
+                                        <small class="text-muted">({{ att.percentage }}%)</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ 'bg-success-subtle text-success' if att.is_passed else 'bg-danger-subtle text-danger' }} rounded-pill">
+                                            {{ 'Passed' if att.is_passed else 'Failed' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('mock_tests.view_result', attempt_id=att.id) }}" class="btn btn-sm btn-link p-0 text-primary">
+                                            Review <i class="fas fa-chevron-right fa-xs"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted small">
+                        No completed tests yet. Start with a mock test above!
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Activity Feed -->
+            <div class="col-lg-5">
+                <div class="card-modern p-4">
+                    <h5 class="fw-bold mb-3">Recent Activity</h5>
+                    {% if metrics.recent_activities %}
+                    <div class="d-flex flex-column gap-3">
+                        {% for act in metrics.recent_activities %}
+                        <div class="d-flex align-items-start gap-3 pb-2 border-bottom">
+                            <div class="stat-icon bg-light text-primary" style="width: 36px; height: 36px; font-size: 0.95rem;">
+                                <i class="fas {{ act.icon }}"></i>
+                            </div>
+                            <div class="overflow-hidden flex-grow-1">
+                                <div class="fw-semibold text-dark small text-truncate">{{ act.title }}</div>
+                                <small class="text-muted d-block text-truncate">{{ act.description }}</small>
+                            </div>
+                            <small class="text-muted flex-shrink-0" style="font-size: 0.75rem;">
+                                {{ act.created_at.strftime('%b %d') }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted small">
+                        No recent activity recorded.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

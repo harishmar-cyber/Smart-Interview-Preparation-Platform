@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Edit Question' if question else 'Add New Question' }} | Admin{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card-modern p-4 p-md-5">
+                <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+                    <a href="{{ url_for('admin.questions_list') }}" class="btn btn-sm btn-light border"><i class="fas fa-arrow-left"></i></a>
+                    <h4 class="fw-bold mb-0">{{ 'Edit Question #' ~ question.id if question else 'Create New Interview Question' }}</h4>
+                </div>
+
+                <form method="POST">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="category_id" class="form-label small fw-semibold">Subject Category <span class="text-danger">*</span></label>
+                            <select class="form-select" id="category_id" name="category_id" required>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}" {{ 'selected' if question and question.category_id == cat.id else '' }}>{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="difficulty" class="form-label small fw-semibold">Difficulty</label>
+                            <select class="form-select" id="difficulty" name="difficulty">
+                                <option value="Easy" {{ 'selected' if question and question.difficulty == 'Easy' else '' }}>Easy</option>
+                                <option value="Medium" {{ 'selected' if not question or question.difficulty == 'Medium' else '' }}>Medium</option>
+                                <option value="Hard" {{ 'selected' if question and question.difficulty == 'Hard' else '' }}>Hard</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="correct_answer" class="form-label small fw-semibold">Correct Choice <span class="text-danger">*</span></label>
+                            <select class="form-select" id="correct_answer" name="correct_answer" required>
+                                <option value="A" {{ 'selected' if question and question.correct_answer == 'A' else '' }}>Option A</option>
+                                <option value="B" {{ 'selected' if question and question.correct_answer == 'B' else '' }}>Option B</option>
+                                <option value="C" {{ 'selected' if question and question.correct_answer == 'C' else '' }}>Option C</option>
+                                <option value="D" {{ 'selected' if question and question.correct_answer == 'D' else '' }}>Option D</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="question_text" class="form-label small fw-semibold">Question Text <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="question_text" name="question_text" rows="3" required placeholder="State the question clearly...">{{ question.question_text if question else '' }}</textarea>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="option_a" class="form-label small fw-semibold">Option A <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="option_a" name="option_a" value="{{ question.option_a if question else '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="option_b" class="form-label small fw-semibold">Option B <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="option_b" name="option_b" value="{{ question.option_b if question else '' }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="option_c" class="form-label small fw-semibold">Option C</label>
+                            <input type="text" class="form-control" id="option_c" name="option_c" value="{{ question.option_c if question else '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="option_d" class="form-label small fw-semibold">Option D</label>
+                            <input type="text" class="form-control" id="option_d" name="option_d" value="{{ question.option_d if question else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="explanation" class="form-label small fw-semibold">Conceptual Explanation</label>
+                        <textarea class="form-control" id="explanation" name="explanation" rows="3" placeholder="Explain why the answer is correct for candidate feedback...">{{ question.explanation if question else '' }}</textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('admin.questions_list') }}" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-primary btn-pill px-4">
+                            <i class="fas fa-save me-1"></i> {{ 'Update Question' if question else 'Save Question' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Profile Card -->
+            <div class="card-modern p-4 p-md-5 mb-4">
+                <div class="d-flex align-items-center gap-4 mb-4 pb-4 border-bottom">
+                    <div class="user-avatar" style="width: 72px; height: 72px; font-size: 2rem;">
+                        {{ current_user.full_name[0] }}
+                    </div>
+                    <div>
+                        <h3 class="fw-bold text-dark mb-1">{{ current_user.full_name }}</h3>
+                        <p class="text-muted small mb-1">{{ current_user.email }} • <span class="badge bg-primary-subtle text-primary">{{ current_user.role|capitalize }}</span></p>
+                        <small class="text-muted">Member since {{ current_user.created_at.strftime('%B %d, %Y') }}</small>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('auth.profile') }}">
+                    <h5 class="fw-bold text-dark mb-3">Academic & Placement Preferences</h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="full_name" class="form-label small fw-semibold">Full Name</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" value="{{ current_user.full_name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email_static" class="form-label small fw-semibold">Email Address (Immutable)</label>
+                            <input type="email" class="form-control bg-light" id="email_static" value="{{ current_user.email }}" readonly disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="preferred_job_role" class="form-label small fw-semibold">Target Job Role</label>
+                            <select class="form-select" id="preferred_job_role" name="preferred_job_role">
+                                <option value="Software Engineer" {{ 'selected' if current_user.preferred_job_role == 'Software Engineer' else '' }}>Software Engineer</option>
+                                <option value="Full Stack Developer" {{ 'selected' if current_user.preferred_job_role == 'Full Stack Developer' else '' }}>Full Stack Developer</option>
+                                <option value="Backend Developer" {{ 'selected' if current_user.preferred_job_role == 'Backend Developer' else '' }}>Backend Developer</option>
+                                <option value="Frontend Developer" {{ 'selected' if current_user.preferred_job_role == 'Frontend Developer' else '' }}>Frontend Developer</option>
+                                <option value="Data Analyst / Scientist" {{ 'selected' if current_user.preferred_job_role == 'Data Analyst / Scientist' else '' }}>Data Analyst / Scientist</option>
+                                <option value="Cloud / DevOps Engineer" {{ 'selected' if current_user.preferred_job_role == 'Cloud / DevOps Engineer' else '' }}>Cloud / DevOps Engineer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="education" class="form-label small fw-semibold">Department / Education Details</label>
+                            <input type="text" class="form-control" id="education" name="education" value="{{ current_user.education or '' }}" placeholder="e.g. B.Tech Computer Science">
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-3 pt-3 border-top">Change Account Password</h5>
+                    <p class="text-muted small mb-3">Leave blank if you do not wish to change your existing password.</p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label for="current_password" class="form-label small fw-semibold">Current Password</label>
+                            <input type="password" class="form-control" id="current_password" name="current_password" placeholder="••••••••">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="new_password" class="form-label small fw-semibold">New Password</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Min. 6 chars" minlength="6">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="confirm_password" class="form-label small fw-semibold">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Repeat new password" minlength="6">
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary btn-pill px-4">
+                            <i class="fas fa-save me-1"></i> Update Profile Details
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

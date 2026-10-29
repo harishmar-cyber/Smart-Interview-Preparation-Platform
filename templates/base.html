@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}SmartPrep | Smart Interview Preparation Platform{% endblock %}</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container-fluid px-lg-4">
+            <a class="navbar-brand" href="{{ url_for('main.landing') }}">
+                <div class="brand-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <span>Smart<span class="text-primary">Prep</span></span>
+            </a>
+
+            <!-- Mobile toggler -->
+            <div class="d-flex align-items-center gap-2">
+                {% if current_user.is_authenticated and not current_user.is_admin %}
+                <button class="btn btn-sm btn-outline-secondary d-lg-none" type="button" id="sidebarToggleBtn" aria-label="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                {% endif %}
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.landing') }}"><i class="fas fa-home me-1 text-primary"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('questions.index') }}"><i class="fas fa-question-circle me-1 text-secondary"></i> Question Bank</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('mock_tests.index') }}"><i class="fas fa-stopwatch me-1 text-accent"></i> Mock Tests</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('coding.index') }}"><i class="fas fa-code me-1 text-success"></i> Coding Practice</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('hr.index') }}"><i class="fas fa-user-tie me-1 text-warning"></i> HR Prep</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin %}
+                            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-shield-alt me-1"></i> Admin Panel
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('student.dashboard') }}" class="btn btn-outline-primary btn-sm position-relative">
+                                <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                                {% if active_recs_count > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ active_recs_count }}
+                                </span>
+                                {% endif %}
+                            </a>
+                        {% endif %}
+
+                        <div class="dropdown">
+                            <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2 border" type="button" data-bs-toggle="dropdown">
+                                <span class="user-avatar" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                                    {{ current_user.full_name[0] }}
+                                </span>
+                                <span class="fw-semibold small d-none d-md-inline">{{ current_user.full_name.split()[0] }}</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                                <li class="px-3 py-2 border-bottom">
+                                    <div class="fw-bold text-dark">{{ current_user.full_name }}</div>
+                                    <div class="text-muted small">{{ current_user.email }}</div>
+                                    <span class="badge bg-primary-subtle text-primary mt-1">{{ current_user.role|capitalize }}</span>
+                                </li>
+                                <li><a class="dropdown-item py-2" href="{{ url_for('auth.profile') }}"><i class="fas fa-user-cog me-2 text-primary"></i> My Profile</a></li>
+                                {% if not current_user.is_admin %}
+                                <li><a class="dropdown-item py-2" href="{{ url_for('analytics.index') }}"><i class="fas fa-chart-line me-2 text-accent"></i> My Analytics</a></li>
+                                <li><a class="dropdown-item py-2" href="{{ url_for('recommendations.index') }}"><i class="fas fa-lightbulb me-2 text-warning"></i> Recommendations</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{{ url_for('auth.logout') }}" method="POST" class="m-0">
+                                        <button class="dropdown-item py-2 text-danger" type="submit"><i class="fas fa-sign-out-alt me-2"></i> Log Out</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-link text-dark text-decoration-none fw-semibold">Log In</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-pill">
+                            <span>Get Started</span> <i class="fas fa-arrow-right small"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="toast-container-custom" id="globalToastContainer">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="toast align-items-center text-white bg-{{ 'danger' if category == 'danger' else ('warning' if category == 'warning' else ('success' if category == 'success' else 'primary')) }} border-0 shadow-lg show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body fw-semibold">
+                            <i class="fas {{ 'fa-exclamation-circle' if category == 'danger' else ('fa-check-circle' if category == 'success' else 'fa-info-circle') }} me-2"></i>
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Block -->
+    {% block content %}
+    {% if error_code %}
+    <div class="container py-5 text-center my-auto">
+        <div class="py-5">
+            <h1 class="display-1 fw-bold text-gradient">{{ error_code }}</h1>
+            <h3 class="mb-3">{{ error_message }}</h3>
+            <p class="text-muted mb-4">The requested page could not be located or access is restricted.</p>
+            <a href="{{ url_for('main.landing') }}" class="btn btn-primary btn-pill">
+                <i class="fas fa-home me-2"></i> Return Home
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    {% endblock %}
+
+    <!-- Footer -->
+    {% block footer %}
+    <footer class="footer-custom">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="brand-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <span class="fs-4 fw-bold text-white">Smart<span class="text-primary">Prep</span></span>
+                    </div>
+                    <p class="small text-muted mb-3">
+                        Empowering students to excel in technical, aptitude, and HR placement rounds with intelligent assessments, hands-on coding, and personalized rule-based guidance.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-dark border border-secondary text-light">Software Engineering Microproject</span>
+                        <span class="badge bg-dark border border-secondary text-light">IA3 Evaluation</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h5>Practice Areas</h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="{{ url_for('questions.index') }}">Question Bank</a></li>
+                        <li class="mb-2"><a href="{{ url_for('mock_tests.index') }}">Timed Mock Tests</a></li>
+                        <li class="mb-2"><a href="{{ url_for('coding.index') }}">Coding Practice</a></li>
+                        <li class="mb-2"><a href="{{ url_for('hr.index') }}">HR Questions (STAR)</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h5>Categories</h5>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="{{ url_for('questions.index') }}?category=1">Java Programming</a></li>
+                        <li class="mb-2"><a href="{{ url_for('questions.index') }}?category=2">Python & DSA</a></li>
+                        <li class="mb-2"><a href="{{ url_for('questions.index') }}?category=4">DBMS & SQL</a></li>
+                        <li class="mb-2"><a href="{{ url_for('questions.index') }}?category=5">Operating Systems</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <h5>About the Project</h5>
+                    <p class="small text-muted">
+                        Developed with Python Flask, SQLite, Chart.js, and Bootstrap 5. Complete with comprehensive IEEE SRS documentation, 5 UML diagrams, and 35+ verified test cases.
+                    </p>
+                    <div class="small text-muted border-top border-secondary pt-3 mt-3">
+                        &copy; 2026 Smart Interview Preparation Platform. Built for Academic Demonstration.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% endblock %}
+
+    <!-- Bootstrap 5.3 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart.js 4 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+    <script>
+    (() => {
+        const token = document.querySelector('meta[name="csrf-token"]').content;
+        document.querySelectorAll('form').forEach((form) => {
+            if (!form.querySelector('input[name="csrf_token"]')) {
+                const field = document.createElement('input');
+                field.type = 'hidden';
+                field.name = 'csrf_token';
+                field.value = token;
+                form.appendChild(field);
+            }
+        });
+
+        const originalFetch = window.fetch.bind(window);
+        window.fetch = (input, init = {}) => {
+            const requestUrl = typeof input === 'string' ? input : input.url;
+            const method = (init.method || (input instanceof Request ? input.method : 'GET')).toUpperCase();
+            if (new URL(requestUrl, window.location.href).origin !== window.location.origin || ['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method)) {
+                return originalFetch(input, init);
+            }
+            const headers = new Headers(input instanceof Request ? input.headers : undefined);
+            new Headers(init.headers || {}).forEach((value, name) => headers.set(name, value));
+            headers.set('X-CSRFToken', token);
+            return originalFetch(input, { ...init, headers });
+        };
+    })();
+    </script>
+
+    <!-- Custom Main JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

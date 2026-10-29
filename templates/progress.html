@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}My Performance Analytics | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-1">Performance Analytics & Tracking</h2>
+            <p class="text-muted small mb-0">Real-time quantitative analytics computed directly from your test attempts and practice submissions.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <a href="{{ url_for('recommendations.index') }}" class="btn btn-warning btn-pill">
+                <i class="fas fa-lightbulb me-1"></i> View Rule Recommendations
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 High Level Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary-subtle text-primary">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ metrics.overall_progress }}%</div>
+                    <div class="stat-label">Placement Readiness</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div class="stat-icon bg-success-subtle text-success">
+                    <i class="fas fa-award"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ metrics.avg_score }}%</div>
+                    <div class="stat-label">Average Test Score</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div class="stat-icon bg-info-subtle text-accent">
+                    <i class="fas fa-code"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ metrics.coding_solved }} / {{ metrics.total_coding }}</div>
+                    <div class="stat-label">Coding Solved</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning-subtle text-warning">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ metrics.hr_practiced }} / {{ metrics.total_hr }}</div>
+                    <div class="stat-label">HR Scenarios Practiced</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- Chart 1: Test Score Progression Line Chart -->
+        <div class="col-lg-8">
+            <div class="card-modern p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">Score Progression Over Time</h5>
+                    <span class="badge bg-light text-dark border">Test Attempts Trend</span>
+                </div>
+                <div style="height: 280px; position: relative;">
+                    <canvas id="scoreTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart 2: Module Distribution Doughnut -->
+        <div class="col-lg-4">
+            <div class="card-modern p-4 h-100">
+                <h5 class="fw-bold mb-3">Preparation Distribution</h5>
+                <div style="height: 280px; position: relative;">
+                    <canvas id="distributionDonutChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Wise Breakdown Table -->
+    <div class="card-modern p-4 mb-4">
+        <h5 class="fw-bold mb-3">Subject-Wise Proficiency Breakdown</h5>
+        <div class="row g-3">
+            {% for cat in cat_stats %}
+            <div class="col-md-6 col-lg-4">
+                <div class="p-3 border rounded-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold d-flex align-items-center gap-2">
+                            <i class="fas {{ cat.icon }}" style="color: {{ cat.color }};"></i> {{ cat.name }}
+                        </span>
+                        <span class="badge {{ 'bg-success' if cat.accuracy >= 70 else ('bg-warning text-dark' if cat.accuracy >= 50 else 'bg-danger') }}">
+                            {{ cat.accuracy }}%
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted mb-2">
+                        <span>Attempted: {{ cat.total_attempted }}</span>
+                        <span>Correct: {{ cat.correct }}</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar" style="width: {{ cat.accuracy }}%; background-color: {{ cat.color }};"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Test History -->
+    <div class="card-modern p-4 mb-4">
+        <h5 class="fw-bold mb-3">Assessment History Log</h5>
+        {% if test_history %}
+        <div class="table-responsive">
+            <table class="table align-middle table-hover small">
+                <thead class="table-light">
+                    <tr>
+                        <th>Assessment Title</th>
+                        <th>Submission Date</th>
+                        <th>Time Taken</th>
+                        <th>Marks</th>
+                        <th>Percentage</th>
+                        <th>Result</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for att in test_history %}
+                    <tr>
+                        <td class="fw-bold">{{ att.mock_test.title }}</td>
+                        <td class="text-muted">{{ att.submitted_at.strftime('%b %d, %Y %H:%M') if att.submitted_at else 'N/A' }}</td>
+                        <td class="text-muted">{{ (att.time_taken_seconds // 60) }}m {{ (att.time_taken_seconds % 60) }}s</td>
+                        <td>{{ att.score }} / {{ att.mock_test.total_marks }}</td>
+                        <td><span class="fw-bold">{{ att.percentage }}%</span></td>
+                        <td>
+                            <span class="badge {{ 'bg-success-subtle text-success' if att.is_passed else 'bg-danger-subtle text-danger' }} rounded-pill px-3">
+                                {{ 'Passed' if att.is_passed else 'Needs Improvement' }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('mock_tests.view_result', attempt_id=att.id) }}" class="btn btn-sm btn-link text-primary p-0">
+                                Review Answers <i class="fas fa-chevron-right fa-xs"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted small text-center my-3">No test history recorded yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Coding Submissions Log -->
+    <div class="card-modern p-4">
+        <h5 class="fw-bold mb-3">Recent Coding Submissions</h5>
+        {% if coding_submissions %}
+        <div class="table-responsive">
+            <table class="table align-middle table-hover small">
+                <thead class="table-light">
+                    <tr>
+                        <th>Problem Title</th>
+                        <th>Submitted At</th>
+                        <th>Status</th>
+                        <th>Test Cases</th>
+                        <th>Runtime</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in coding_submissions %}
+                    <tr>
+                        <td class="fw-bold">{{ sub.problem.title }}</td>
+                        <td class="text-muted">{{ sub.submitted_at.strftime('%b %d, %Y %H:%M') }}</td>
+                        <td>
+                            <span class="badge {{ 'bg-success' if sub.result_status == 'Accepted' else 'bg-danger' }}">
+                                {{ sub.result_status }}
+                            </span>
+                        </td>
+                        <td>{{ sub.test_cases_passed }} / {{ sub.test_cases_total }}</td>
+                        <td>{{ sub.runtime_ms }} ms</td>
+                        <td>
+                            <a href="{{ url_for('coding.detail', slug=sub.problem.slug) }}" class="btn btn-sm btn-link text-primary p-0">
+                                Open IDE <i class="fas fa-chevron-right fa-xs"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted small text-center my-3">No coding submissions recorded yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

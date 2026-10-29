@@ -1,0 +1,75 @@
+@startuml
+hide circle
+skinparam classAttributeIconSize 0
+
+class User {
+  +id: int
+  +full_name: string
+  +email: string
+  +password_hash: string
+  +role: string
+  +preferred_job_role: string
+  +education: string
+  +is_active: bool
+  +set_password(password)
+  +check_password(password): bool
+}
+class Category {
+  +id: int
+  +name: string
+  +description: text
+  +icon: string
+  +color: string
+}
+class Question {
+  +id: int
+  +category_id: int
+  +question_text: text
+  +question_type: string
+  +difficulty: string
+  +option_a..option_d: text
+  +correct_answer: string
+  +explanation: text
+  +to_dict(include_answer): dict
+}
+class Bookmark { +id: int; +user_id: int; +question_id: int; +created_at: datetime }
+class QuestionAttempt { +id: int; +user_id: int; +question_id: int; +selected_answer: string; +is_correct: bool; +attempted_at: datetime }
+class MockTest { +id: int; +title: string; +category_id: int; +duration_minutes: int; +total_marks: int; +passing_percentage: float; +is_published: bool }
+class TestQuestion { +id: int; +test_id: int; +question_id: int; +marks: int }
+class TestAttempt { +id: int; +user_id: int; +test_id: int; +started_at: datetime; +submitted_at: datetime; +score: float; +percentage: float; +status: string; +time_taken_seconds: int }
+class AttemptAnswer { +id: int; +attempt_id: int; +question_id: int; +selected_answer: string; +is_correct: bool; +marks_awarded: float }
+class CodingProblem { +id: int; +title: string; +slug: string; +difficulty: string; +test_cases_json: text; +get_test_cases(): list; +is_solved_by(user_id): bool }
+class CodingSubmission { +id: int; +user_id: int; +problem_id: int; +submitted_code: text; +result_status: string; +test_cases_passed: int; +test_cases_total: int }
+class HRQuestion { +id: int; +question_text: text; +example_answer: text; +answer_tips: text; +category: string }
+class HRPractice { +id: int; +user_id: int; +hr_question_id: int; +personal_answer: text; +is_practiced: bool; +updated_at: datetime }
+class Recommendation { +id: int; +user_id: int; +category_id: int; +title: string; +priority: string; +suggested_action: string; +is_completed: bool }
+class ActivityLog { +id: int; +user_id: int; +activity_type: string; +reference_id: int; +score: float; +created_at: datetime }
+class ScoringService <<service>> { +grade_test_attempt(attempt_id, answers, elapsed): result }
+class RecommendationService <<service>> { +calculate_student_category_performances(user_id): dict; +generate_recommendations(user_id): list }
+
+Category "1" -- "0..*" Question
+Category "0..1" -- "0..*" MockTest
+Category "0..1" -- "0..*" Recommendation
+User "1" -- "0..*" Bookmark
+Question "1" -- "0..*" Bookmark
+User "1" -- "0..*" QuestionAttempt
+Question "1" -- "0..*" QuestionAttempt
+MockTest "1" -- "1..*" TestQuestion
+Question "1" -- "0..*" TestQuestion
+User "1" -- "0..*" TestAttempt
+MockTest "1" -- "0..*" TestAttempt
+TestAttempt "1" -- "0..*" AttemptAnswer
+Question "1" -- "0..*" AttemptAnswer
+User "1" -- "0..*" CodingSubmission
+CodingProblem "1" -- "0..*" CodingSubmission
+User "1" -- "0..*" HRPractice
+HRQuestion "1" -- "0..*" HRPractice
+User "1" -- "0..*" Recommendation
+User "1" -- "0..*" ActivityLog
+ScoringService ..> TestAttempt
+ScoringService ..> AttemptAnswer
+RecommendationService ..> Recommendation
+RecommendationService ..> TestAttempt
+RecommendationService ..> CodingSubmission
+RecommendationService ..> HRPractice
+@enduml

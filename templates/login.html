@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-auto">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5 col-xl-4">
+            <div class="card-modern p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="brand-icon mx-auto mb-3" style="width: 48px; height: 48px; font-size: 1.4rem;">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">Welcome Back</h3>
+                    <p class="text-muted small">Sign in to resume your preparation</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-semibold small">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
+                            <input type="email" class="form-control border-start-0" id="email" name="email" placeholder="name@domain.com" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="password" class="form-label fw-semibold small">Password</label>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-key text-muted"></i></span>
+                            <input type="password" class="form-control border-start-0" id="password" name="password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="remember" name="remember" checked>
+                        <label class="form-check-label small text-muted" for="remember">
+                            Remember me on this browser
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 btn-pill mb-3">
+                        <i class="fas fa-sign-in-alt me-2"></i> Sign In
+                    </button>
+                </form>
+
+                <!-- Academic Demo Autofill Shortcuts -->
+                <div class="p-3 bg-light rounded-3 border mt-3 text-center">
+                    <small class="fw-bold d-block text-muted mb-2"><i class="fas fa-id-badge me-1"></i> Quick Demo Autofill (Academic Review):</small>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2" onclick="fillCredentials('student@smartprep.com', 'Student@123')">
+                            Student Demo
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="fillCredentials('admin@smartprep.com', 'Admin@123')">
+                            Admin Demo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <p class="small text-muted mb-0">Don't have an account? <a href="{{ url_for('auth.register') }}" class="fw-bold">Sign up now</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function fillCredentials(email, password) {
+    document.getElementById('email').value = email;
+    document.getElementById('password').value = password;
+    showToast(`Autofilled demo credentials for ${email}`, 'info');
+}
+</script>
+{% endblock %}

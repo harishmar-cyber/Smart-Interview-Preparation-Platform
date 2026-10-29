@@ -1,0 +1,24 @@
+@startuml
+hide empty description
+[*] --> NotStarted : attempt created
+NotStarted --> InProgress : student starts test
+InProgress --> Submitted : student submits before deadline
+InProgress --> Expired : server deadline reached
+Submitted --> Evaluated : validate answers and calculate score
+Expired --> Evaluated : auto-submit saved answers and calculate score
+Evaluated --> [*] : result available
+
+note right of Submitted
+  Transient lifecycle state.
+  The current service persists the final
+  status as evaluated in one scoring call.
+end note
+note right of Expired
+  Expiry triggers automatic grading;
+  the current service then persists evaluated.
+end note
+note bottom of Evaluated
+  Repeated submissions do not re-grade
+  an evaluated attempt.
+end note
+@enduml

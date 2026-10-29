@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Registration | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-auto">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6 col-xl-5">
+            <div class="card-modern p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="brand-icon mx-auto mb-3" style="width: 48px; height: 48px; font-size: 1.4rem;">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">Create Student Account</h3>
+                    <p class="text-muted small">Begin preparing for placement drives today</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('auth.register') }}">
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label fw-semibold small">Full Name <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-user text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0" id="full_name" name="full_name" placeholder="John Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-semibold small">Email Address <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
+                            <input type="email" class="form-control border-start-0" id="email" name="email" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-6">
+                            <label for="preferred_job_role" class="form-label fw-semibold small">Target Role</label>
+                            <select class="form-select" id="preferred_job_role" name="preferred_job_role">
+                                <option value="Software Engineer" selected>Software Engineer</option>
+                                <option value="Full Stack Developer">Full Stack Developer</option>
+                                <option value="Backend Developer">Backend Developer</option>
+                                <option value="Frontend Developer">Frontend Developer</option>
+                                <option value="Data Analyst / Scientist">Data Analyst / Scientist</option>
+                                <option value="QA / Automation Engineer">QA / Automation Engineer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="education" class="form-label fw-semibold small">Education / Branch</label>
+                            <input type="text" class="form-control" id="education" name="education" placeholder="B.Tech CSE" value="B.Tech Computer Science">
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-4">
+                        <div class="col-md-6">
+                            <label for="password" class="form-label fw-semibold small">Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-key text-muted"></i></span>
+                                <input type="password" class="form-control border-start-0" id="password" name="password" placeholder="Min. 6 chars" minlength="6" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="confirm_password" class="form-label fw-semibold small">Confirm Password <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="fas fa-check-double text-muted"></i></span>
+                                <input type="password" class="form-control border-start-0" id="confirm_password" name="confirm_password" placeholder="Repeat password" minlength="6" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 btn-pill mb-3">
+                        <i class="fas fa-rocket me-2"></i> Register & Access Dashboard
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <p class="small text-muted mb-0">Already registered? <a href="{{ url_for('auth.login') }}" class="fw-bold">Sign In here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

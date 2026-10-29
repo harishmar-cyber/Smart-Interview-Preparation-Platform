@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}Administrator Control Center | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Admin Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-danger text-white px-3 py-1 rounded-pill">Admin Mode</span>
+                <h2 class="fw-bold mb-0">System Control Center</h2>
+            </div>
+            <p class="text-muted small mb-0">Manage users, question bank content, timed mock tests, and programming challenges.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.question_create') }}" class="btn btn-primary btn-sm btn-pill">
+                <i class="fas fa-plus me-1"></i> Add Question
+            </a>
+            <a href="{{ url_for('admin.test_create') }}" class="btn btn-secondary btn-sm btn-pill">
+                <i class="fas fa-stopwatch me-1"></i> New Test
+            </a>
+            <a href="{{ url_for('admin.coding_create') }}" class="btn btn-outline-primary btn-sm btn-pill">
+                <i class="fas fa-code me-1"></i> Add Problem
+            </a>
+        </div>
+    </div>
+
+    <!-- Stat Counter Widgets -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary-subtle text-primary">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats.total_students }}</div>
+                    <div class="stat-label">Registered Students</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon bg-info-subtle text-accent">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats.total_questions }}</div>
+                    <div class="stat-label">Bank Questions</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon bg-success-subtle text-success">
+                    <i class="fas fa-stopwatch"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats.total_tests }}</div>
+                    <div class="stat-label">Mock Tests ({{ stats.total_attempts }} Attempts)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning-subtle text-warning">
+                    <i class="fas fa-code"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ stats.total_problems }}</div>
+                    <div class="stat-label">Coding Challenges</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Navigation Quick Grid -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2 col-6">
+            <a href="{{ url_for('admin.questions_list') }}" class="card-modern p-3 text-center text-dark text-decoration-none">
+                <i class="fas fa-database text-primary fa-2x mb-2"></i>
+                <div class="fw-bold small">Manage Questions</div>
+            </a>
+        </div>
+        <div class="col-md-2 col-6">
+            <a href="{{ url_for('admin.tests_list') }}" class="card-modern p-3 text-center text-dark text-decoration-none">
+                <i class="fas fa-stopwatch text-secondary fa-2x mb-2"></i>
+                <div class="fw-bold small">Manage Tests</div>
+            </a>
+        </div>
+        <div class="col-md-2 col-6">
+            <a href="{{ url_for('admin.coding_list') }}" class="card-modern p-3 text-center text-dark text-decoration-none">
+                <i class="fas fa-code text-accent fa-2x mb-2"></i>
+                <div class="fw-bold small">Manage Coding</div>
+            </a>
+        </div>
+        <div class="col-md-2 col-6">
+            <a href="{{ url_for('admin.hr_list') }}" class="card-modern p-3 text-center text-dark text-decoration-none">
+                <i class="fas fa-user-tie text-warning fa-2x mb-2"></i>
+                <div class="fw-bold small">Manage HR</div>
+            </a>
+        </div>
+        <div class="col-md-2 col-6">
+            <a href="{{ url_for('admin.users_list') }}" class="card-modern p-3 text-center text-dark text-decoration-none">
+                <i class="fas fa-users-cog text-success fa-2x mb-2"></i>
+                <div class="fw-bold small">Manage Students</div>
+            </a>
+        </div>
+        <div class="col-md-2 col-6">
+            <a href="{{ url_for('student.dashboard') }}" class="card-modern p-3 text-center text-dark text-decoration-none">
+                <i class="fas fa-eye text-highlight fa-2x mb-2"></i>
+                <div class="fw-bold small">Student View</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Test Submissions & Students -->
+    <div class="row g-4">
+        <!-- Recent Attempts -->
+        <div class="col-lg-7">
+            <div class="card-modern p-4">
+                <h5 class="fw-bold mb-3">Live Student Test Submissions</h5>
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover small">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Assessment</th>
+                                <th>Score</th>
+                                <th>Status</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for att in recent_attempts %}
+                            <tr>
+                                <td class="fw-semibold">{{ att.user.full_name }}</td>
+                                <td class="text-truncate" style="max-width: 140px;">{{ att.mock_test.title }}</td>
+                                <td>{{ att.percentage }}%</td>
+                                <td>
+                                    <span class="badge {{ 'bg-success' if att.is_passed else 'bg-danger' }}">
+                                        {{ 'Passed' if att.is_passed else 'Failed' }}
+                                    </span>
+                                </td>
+                                <td class="text-muted">{{ att.submitted_at.strftime('%H:%M') if att.submitted_at else 'Active' }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-center text-muted">No test submissions logged yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Registered Students -->
+        <div class="col-lg-5">
+            <div class="card-modern p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">Registered Students</h5>
+                    <a href="{{ url_for('admin.users_list') }}" class="small fw-semibold text-primary">View All</a>
+                </div>
+                <div class="d-flex flex-column gap-3">
+                    {% for u in recent_users %}
+                    <div class="d-flex align-items-center justify-content-between pb-2 border-bottom">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="user-avatar" style="width: 34px; height: 34px; font-size: 0.85rem;">
+                                {{ u.full_name[0] }}
+                            </div>
+                            <div>
+                                <div class="fw-semibold small text-dark">{{ u.full_name }}</div>
+                                <small class="text-muted">{{ u.email }}</small>
+                            </div>
+                        </div>
+                        <span class="badge {{ 'bg-success-subtle text-success' if u.is_active else 'bg-danger-subtle text-danger' }}">
+                            {{ 'Active' if u.is_active else 'Disabled' }}
+                        </span>
+                    </div>
+                    {% else %}
+                    <p class="text-muted small">No students registered yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

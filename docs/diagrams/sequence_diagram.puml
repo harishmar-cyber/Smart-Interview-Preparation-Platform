@@ -1,0 +1,49 @@
+@startuml
+actor Student
+participant Browser
+participant "Flask Route" as Route
+participant "Flask-Login\nAuthorization" as Auth
+participant Database as DB
+participant "Test / Scoring Service" as Service
+participant "Recommendation Service" as Recommendations
+participant "Result Page" as Result
+
+Student -> Browser: Select published test
+Browser -> Route: POST /mock-tests/{id}/start
+Route -> Auth: require authenticated user
+Auth --> Route: user identity / access decision
+Route -> DB: load published test and in-progress attempt
+DB --> Route: test metadata and question links
+Route -> DB: create TestAttempt(started_at, in_progress)
+DB --> Route: attempt id
+Route --> Browser: redirect to active test
+Browser -> Route: GET active test page
+Route -> DB: load question text and options
+DB --> Route: questions (answer keys available server-side)
+Route --> Browser: render question data only
+note over Browser,Route
+  The active response excludes correct answers
+  and explanations.
+end note
+
+Student -> Browser: Select answers and submit
+Browser -> Route: POST answers + elapsed-time hint
+Route -> Auth: verify attempt owner or admin
+Auth --> Route: authorized
+Route -> DB: reload attempt, test links, answer keys
+DB --> Route: scoring records
+Route -> Service: grade submitted IDs and choices
+Service -> Service: validate choices and calculate score
+Service -> DB: persist AttemptAnswer and evaluated TestAttempt
+DB --> Service: commit
+Service -> Recommendations: refresh from stored performance
+Recommendations -> DB: read performance and replace active recommendations
+DB --> Recommendations: saved recommendations
+Recommendations --> Service: recommendations refreshed
+Service --> Route: score summary
+Route --> Browser: redirect to result
+Browser -> Result: GET result page
+Result -> DB: load owned attempt, answers, and review data
+DB --> Result: persisted result records
+Result --> Browser: render score, review, and recommendations
+@enduml

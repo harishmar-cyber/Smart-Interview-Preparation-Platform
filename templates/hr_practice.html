@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}HR Interview Preparation | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row align-items-center mb-4 g-3">
+        <div class="col-lg-7">
+            <h2 class="fw-bold mb-1">HR & Behavioral Interview Preparation</h2>
+            <p class="text-muted small mb-0">Master managerial, behavioral, and situational interview rounds using the proven STAR framework.</p>
+        </div>
+        <div class="col-lg-5">
+            <!-- Progress Pill Card -->
+            <div class="p-3 bg-white rounded-4 border shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-1 small fw-bold">
+                    <span>Practiced Scenarios</span>
+                    <span class="text-warning">{{ practiced_count }} / {{ total_count }} ({{ completion_percentage }}%)</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar gradient-warm" style="width: {{ completion_percentage }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STAR Framework Primer Banner -->
+    <div class="card-modern p-4 mb-4 gradient-dark text-white">
+        <div class="row align-items-center g-3">
+            <div class="col-md-3 text-center border-end border-secondary">
+                <div class="display-6 fw-bold text-warning mb-1">STAR</div>
+                <small class="text-white-50 text-uppercase fw-semibold">Methodology</small>
+            </div>
+            <div class="col-md-9 ps-md-4">
+                <h5 class="fw-bold mb-2">How to Ace Behavioral Questions:</h5>
+                <div class="row g-2 small text-light opacity-90">
+                    <div class="col-sm-3"><strong>S - Situation:</strong> Set the scene & context.</div>
+                    <div class="col-sm-3"><strong>T - Task:</strong> State your core responsibility.</div>
+                    <div class="col-sm-3"><strong>A - Action:</strong> Describe what <em>you</em> did.</div>
+                    <div class="col-sm-3"><strong>R - Result:</strong> Share measurable outcomes.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="card-modern p-3 mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('hr.index', status=selected_status) }}" class="badge {{ 'bg-primary text-white' if not selected_category else 'bg-light text-dark border' }} text-decoration-none p-2 rounded-pill">
+                    All Categories
+                </a>
+                {% for cat in categories %}
+                <a href="{{ url_for('hr.index', category=cat, status=selected_status) }}" class="badge {{ 'bg-primary text-white' if selected_category == cat else 'bg-light text-dark border' }} text-decoration-none p-2 rounded-pill">
+                    {{ cat }}
+                </a>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('hr.index', category=selected_category, status='practiced') }}" class="btn btn-sm {{ 'btn-success' if selected_status == 'practiced' else 'btn-outline-success' }} btn-pill">
+                    Practiced Only
+                </a>
+                <a href="{{ url_for('hr.index', category=selected_category, status='pending') }}" class="btn btn-sm {{ 'btn-secondary' if selected_status == 'pending' else 'btn-outline-secondary' }} btn-pill">
+                    Pending Only
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- HR Questions List -->
+    <div class="d-flex flex-column gap-4 mb-4">
+        {% for q in questions %}
+        {% set practice = user_practices.get(q.id) %}
+        {% set is_practiced = practice.is_practiced if practice else False %}
+        <div class="card-modern p-4" id="hr_card_{{ q.id }}">
+            <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-light text-dark border">HR#{{ q.id }}</span>
+                    <span class="badge bg-warning-subtle text-warning fw-bold">{{ q.category }}</span>
+                    {% if is_practiced %}
+                        <span class="badge bg-success-subtle text-success rounded-pill px-3">
+                            <i class="fas fa-check-circle me-1"></i> Practiced
+                        </span>
+                    {% else %}
+                        <span class="badge bg-light text-muted border rounded-pill px-3">
+                            <i class="far fa-circle me-1"></i> Not Practiced
+                        </span>
+                    {% endif %}
+                </div>
+                {% if practice and practice.updated_at %}
+                <small class="text-muted">Last updated: {{ practice.updated_at.strftime('%b %d, %Y') }}</small>
+                {% endif %}
+            </div>
+
+            <!-- Question Text -->
+            <h4 class="fw-bold text-dark mb-3">"{{ q.question_text }}"</h4>
+
+            <!-- STAR & Tips Accordion -->
+            <div class="accordion mb-3" id="hrAccordion{{ q.id }}">
+                <div class="accordion-item border rounded-3 overflow-hidden mb-2">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed py-2 small fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#tipsCollapse{{ q.id }}">
+                            <i class="fas fa-lightbulb text-warning me-2"></i> Answering Tips & Strategy
+                        </button>
+                    </h2>
+                    <div id="tipsCollapse{{ q.id }}" class="accordion-collapse collapse" data-bs-parent="#hrAccordion{{ q.id }}">
+                        <div class="accordion-body small text-muted bg-light">
+                            {{ q.answer_tips }}
+                            {% if q.star_framework_guide %}
+                            <div class="mt-2 pt-2 border-top text-primary fw-medium">
+                                <i class="fas fa-star me-1"></i> STAR Blueprint: {{ q.star_framework_guide }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item border rounded-3 overflow-hidden">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed py-2 small fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#exampleCollapse{{ q.id }}">
+                            <i class="fas fa-comment-dots text-primary me-2"></i> Model Example Response
+                        </button>
+                    </h2>
+                    <div id="exampleCollapse{{ q.id }}" class="accordion-collapse collapse" data-bs-parent="#hrAccordion{{ q.id }}">
+                        <div class="accordion-body small text-dark bg-light fst-italic">
+                            "{{ q.example_answer }}"
+                            <div class="mt-2 text-muted fw-normal" style="font-size: 0.75rem;">
+                                Note: This is an illustrative response structure. Customize with your authentic individual experiences.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Personal Answer Draft Box -->
+            <div class="p-3 bg-light rounded-3 border">
+                <label for="personal_answer_{{ q.id }}" class="form-label fw-bold small text-dark d-flex justify-content-between">
+                    <span><i class="fas fa-pen-nib text-secondary me-1"></i> Your Personal Answer Draft:</span>
+                    <span class="text-muted fw-normal">Saved directly to your account</span>
+                </label>
+                <textarea id="personal_answer_{{ q.id }}" class="form-control mb-3" rows="3" placeholder="Draft your authentic response using the Situation, Task, Action, Result model...">{{ practice.personal_answer if practice else '' }}</textarea>
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small text-muted fw-semibold">Confidence Rating:</label>
+                        <select class="form-select form-select-sm w-auto" id="confidence_{{ q.id }}">
+                            <option value="Low" {{ 'selected' if practice and practice.confidence_level == 'Low' else '' }}>Low (Need revision)</option>
+                            <option value="Medium" {{ 'selected' if not practice or practice.confidence_level == 'Medium' else '' }}>Medium (Good)</option>
+                            <option value="High" {{ 'selected' if practice and practice.confidence_level == 'High' else '' }}>High (Interview Ready)</option>
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn btn-primary btn-sm btn-pill px-4" onclick="saveHRPractice({{ q.id }})">
+                        <i class="fas fa-save me-1"></i> Save Response & Mark Practiced
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function saveHRPractice(questionId) {
+    const textarea = document.getElementById(`personal_answer_${questionId}`);
+    const confidenceSelect = document.getElementById(`confidence_${questionId}`);
+    const personalAnswer = textarea ? textarea.value : '';
+    const confidenceLevel = confidenceSelect ? confidenceSelect.value : 'Medium';
+
+    try {
+        const response = await fetch(`/hr-practice/${questionId}/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                personal_answer: personalAnswer,
+                is_practiced: true,
+                confidence_level: confidenceLevel
+            })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showToast(data.message, 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('Error saving response.', 'danger');
+    }
+}
+</script>
+{% endblock %}

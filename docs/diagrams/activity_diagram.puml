@@ -1,0 +1,48 @@
+@startuml
+start
+:Open SmartPrep;
+:Enter login credentials;
+if (Credentials valid?) then (yes)
+  :Load student dashboard;
+else (no)
+  :Show validation message;
+  stop
+endif
+:Choose preparation area;
+if (Timed test selected?) then (yes)
+  :Start or resume attempt;
+  :Answer questions before server deadline;
+  :Submit answers or reach timeout;
+  :Validate owner and submitted choices;
+  :Calculate score on server;
+  :Persist answers and attempt result;
+else (no)
+  if (Question practice selected?) then (yes)
+    :Choose question and answer;
+    :Persist practice outcome;
+  else (no)
+    if (Coding selected?) then (yes)
+      :Choose problem and submit source;
+      :Evaluate configured cases;
+      :Persist submission summary;
+    else (no)
+      if (HR preparation selected?) then (yes)
+        :Draft answer and mark practice state;
+        :Persist HR practice;
+      else (no)
+        :Open progress or recommendations;
+      endif
+    endif
+  endif
+endif
+:Analyze stored performance;
+:Refresh rule-based recommendations;
+:Update activity and progress views;
+if (Continue preparing?) then (yes)
+  :Choose another preparation area;
+  -> :Choose preparation area;
+else (no)
+  :Log out or end session;
+  stop
+endif
+@enduml

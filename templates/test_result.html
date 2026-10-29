@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Test Results: {{ mock_test.title }} | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Score Summary Card -->
+    <div class="card-modern p-4 p-md-5 mb-5 text-center">
+        <div class="mb-3">
+            <span class="badge {{ 'bg-success text-white' if attempt.is_passed else 'bg-danger text-white' }} fs-6 px-4 py-2 rounded-pill shadow-sm">
+                <i class="fas {{ 'fa-check-circle' if attempt.is_passed else 'fa-times-circle' }} me-2"></i>
+                {{ 'ASSESSMENT PASSED' if attempt.is_passed else 'NEEDS IMPROVEMENT' }}
+            </span>
+        </div>
+
+        <h2 class="fw-bold text-dark mb-1">{{ mock_test.title }}</h2>
+        <p class="text-muted small mb-4">Completed on {{ attempt.submitted_at.strftime('%B %d, %Y at %H:%M') if attempt.submitted_at else 'Recently' }}</p>
+
+        <!-- Stats Counter Row -->
+        <div class="row g-3 justify-content-center mb-4">
+            <div class="col-6 col-md-2">
+                <div class="p-3 bg-light rounded-3">
+                    <div class="display-6 fw-bold text-primary">{{ attempt.percentage }}%</div>
+                    <small class="text-muted fw-semibold">Final Score</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="p-3 bg-light rounded-3">
+                    <div class="display-6 fw-bold text-dark">{{ attempt.score }}/{{ mock_test.total_marks }}</div>
+                    <small class="text-muted fw-semibold">Marks Earned</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="p-3 bg-light rounded-3">
+                    <div class="display-6 fw-bold text-success">{{ attempt.correct_count }}</div>
+                    <small class="text-muted fw-semibold">Correct</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="p-3 bg-light rounded-3">
+                    <div class="display-6 fw-bold text-danger">{{ attempt.incorrect_count }}</div>
+                    <small class="text-muted fw-semibold">Incorrect</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="p-3 bg-light rounded-3">
+                    <div class="display-6 fw-bold text-secondary">{{ attempt.unanswered_count }}</div>
+                    <small class="text-muted fw-semibold">Unanswered</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="p-3 bg-light rounded-3">
+                    <div class="display-6 fw-bold text-info">{{ (attempt.time_taken_seconds // 60) }}m</div>
+                    <small class="text-muted fw-semibold">Time Taken</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ url_for('student.dashboard') }}" class="btn btn-primary btn-pill px-4">
+                <i class="fas fa-tachometer-alt me-2"></i> Return to Dashboard
+            </a>
+            <a href="{{ url_for('mock_tests.index') }}" class="btn btn-outline-primary btn-pill px-4">
+                <i class="fas fa-list me-2"></i> All Assessments
+            </a>
+            <a href="{{ url_for('recommendations.index') }}" class="btn btn-outline-warning btn-pill px-4">
+                <i class="fas fa-lightbulb me-2"></i> View Updated Recommendations
+            </a>
+        </div>
+    </div>
+
+    <!-- Category Performance Breakdown -->
+    {% if cat_breakdown %}
+    <div class="card-modern p-4 mb-5">
+        <h5 class="fw-bold mb-3"><i class="fas fa-chart-bar text-primary me-2"></i> Subject Performance in this Test</h5>
+        <div class="row g-3">
+            {% for cat_name, stats in cat_breakdown.items() %}
+            <div class="col-md-4">
+                <div class="p-3 border rounded-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold">{{ cat_name }}</span>
+                        <span class="badge {{ 'bg-success' if stats.percentage >= 60 else 'bg-warning text-dark' }}">{{ stats.percentage }}%</span>
+                    </div>
+                    <small class="text-muted">{{ stats.correct }} of {{ stats.total }} questions correct</small>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar {{ 'bg-success' if stats.percentage >= 60 else 'bg-warning' }}" style="width: {{ stats.percentage }}%;"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Detailed Solutions Review -->
+    <div class="card-modern p-4 p-md-5">
+        <h4 class="fw-bold mb-4"><i class="fas fa-check-double text-success me-2"></i> Question by Question Review & Solutions</h4>
+
+        <div class="d-flex flex-column gap-4">
+            {% for ans in answers %}
+            {% set q = ans.question %}
+            <div class="p-4 rounded-4 border {{ 'border-success-subtle bg-success-subtle bg-opacity-10' if ans.is_correct else ('border-danger-subtle bg-danger-subtle bg-opacity-10' if ans.selected_answer else 'border-secondary-subtle bg-light') }}">
+                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-dark">Q#{{ loop.index }}</span>
+                        <span class="badge bg-light text-dark border">{{ q.category.name if q.category else 'General' }}</span>
+                        <span class="badge {{ 'bg-success' if q.difficulty == 'Easy' else ('bg-warning text-dark' if q.difficulty == 'Medium' else 'bg-danger') }}">{{ q.difficulty }}</span>
+                    </div>
+                    <div>
+                        {% if ans.is_correct %}
+                            <span class="badge bg-success px-3 py-1 rounded-pill"><i class="fas fa-check me-1"></i> Correct (+{{ ans.marks_awarded }})</span>
+                        {% elif ans.selected_answer %}
+                            <span class="badge bg-danger px-3 py-1 rounded-pill"><i class="fas fa-times me-1"></i> Incorrect (0)</span>
+                        {% else %}
+                            <span class="badge bg-secondary px-3 py-1 rounded-pill"><i class="fas fa-minus me-1"></i> Unanswered (0)</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <h5 class="fw-bold text-dark mb-3">{{ q.question_text }}</h5>
+
+                <!-- Options Grid showing Student's Choice vs Correct Choice -->
+                <div class="row g-2 mb-3">
+                    {% for opt_key, opt_text in [('A', q.option_a), ('B', q.option_b), ('C', q.option_c), ('D', q.option_d)] %}
+                    {% if opt_text %}
+                    <div class="col-md-6">
+                        <div class="p-2 px-3 rounded border small d-flex justify-content-between align-items-center {{ 'bg-success text-white border-success' if opt_key == q.correct_answer else ('bg-danger text-white border-danger' if opt_key == ans.selected_answer and not ans.is_correct else 'bg-white') }}">
+                            <span><strong>{{ opt_key }}.</strong> {{ opt_text }}</span>
+                            {% if opt_key == q.correct_answer %}
+                                <span class="badge bg-white text-success fw-bold ms-2"><i class="fas fa-check"></i> Correct Answer</span>
+                            {% elif opt_key == ans.selected_answer %}
+                                <span class="badge bg-white text-danger fw-bold ms-2"><i class="fas fa-times"></i> Your Choice</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Explanation Box -->
+                <div class="p-3 bg-white rounded-3 border">
+                    <div class="fw-bold text-primary small mb-1"><i class="fas fa-info-circle me-1"></i> Detailed Explanation:</div>
+                    <div class="small text-muted">{{ q.explanation }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
