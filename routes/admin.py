@@ -397,7 +397,43 @@ def users_list():
     if search:
         query = query.filter(User.full_name.ilike(f"%{search}%") | User.email.ilike(f"%{search}%"))
     users = query.order_by(User.created_at.desc()).all()
-    return render_template('admin/users.html', users=users, search=search)
+    admins = User.query.filter_by(role='admin').order_by(User.created_at.desc()).all()
+    return render_template('admin/users.html', users=users, admins=admins, search=search)
+
+@admin_bp.route('/users/admin/create', methods=['POST'])
+def create_admin_user():
+    full_name = request.form.get('full_name', '').strip()
+    email = request.form.get('email', '').strip().lower()
+    password = request.form.get('password', '')
+    confirm_password = request.form.get('confirm_password', '')
+
+    if not full_name or not email or not password or not confirm_password:
+        flash("All administrator account fields are required.", "danger")
+        return redirect(url_for('admin.users_list'))
+    if len(full_name) < 2 or '@' not in email or '.' not in email.rsplit('@', 1)[-1]:
+        flash("Enter a valid name and email address.", "danger")
+        return redirect(url_for('admin.users_list'))
+    if len(password) < 8:
+        flash("Administrator passwords must be at least 8 characters long.", "danger")
+        return redirect(url_for('admin.users_list'))
+    if password != confirm_password:
+        flash("Passwords do not match.", "danger")
+        return redirect(url_for('admin.users_list'))
+    if User.query.filter_by(email=email).first():
+        flash("An account with this email address already exists.", "danger")
+        return redirect(url_for('admin.users_list'))
+
+    admin = User(
+        full_name=full_name,
+        email=email,
+        role='admin',
+        is_active=True
+    )
+    admin.set_password(password)
+    db.session.add(admin)
+    db.session.commit()
+    flash(f"Administrator account created for {email}.", "success")
+    return redirect(url_for('admin.users_list'))
 
 @admin_bp.route('/users/<int:id>/toggle-status', methods=['POST'])
 def toggle_user_status(id):

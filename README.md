@@ -91,7 +91,7 @@ The checked-in values in `.env.example` are development-only demo credentials, n
 - Admin: `admin@smartprep.com` / `Admin@123`
 - Student: `student@smartprep.com` / `Student@123`
 
-Set a new `ADMIN_PASSWORD` before seeding if you need a different admin password. Never use these defaults outside a local demo. Set a long, unique `SECRET_KEY` and a protected database URL before deployment.
+Sign in with the demo admin account and open **Manage Students** to create additional admin logins. Admin accounts cannot be created through public student registration. Set a new `ADMIN_PASSWORD` before seeding if you need a different initial admin password. Never use these defaults outside a local demo. Set a long, unique `SECRET_KEY` and a protected database URL before deployment.
 
 ## Database and Demo Data
 

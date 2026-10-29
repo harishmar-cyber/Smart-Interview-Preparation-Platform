@@ -42,6 +42,9 @@
 | TC-033 | FR-017 | Reject invalid password change | Student is logged in | Submit new password with wrong current password | Wrong current password | Password remains unchanged and safe validation appears | Not executed | Pending | Negative profile case |
 | TC-034 | FR-010, FR-011 | Persist progress across restart | Local SQLite file contains practice records | Record practice; stop/restart server; reopen dashboard | Existing seeded database | Previously committed records remain available | Not executed | Pending | Database persistence integration case |
 | TC-035 | FR-018 | Reject state change without CSRF token | Normal non-testing configuration | POST state-changing endpoint without token | Missing/invalid token | HTTP 400; database state is unchanged | Not executed | Pending | Current pytest config disables CSRF; production-mode check required |
+| TC-036 | FR-021 | Provision an additional admin | Admin is logged in | Submit the admin creation form with valid details | Unique email and matching password of at least 8 characters | New account has admin role and hashed password | Targeted pytest observed redirect, admin role, and verified password hash | Pass | `tests/test_admin.py` |
+| TC-037 | FR-003, FR-021 | Deny student admin provisioning | Student is logged in | POST the admin creation endpoint | Valid-looking admin details | Request is denied and no admin account is created | Targeted pytest observed redirect and no account | Pass | `tests/test_admin.py` |
+| TC-038 | FR-015 | Render HR administration pages | Admin is logged in | Open `/admin/hr` and `/admin/users` | Empty test database | Both pages render with their forms and empty states | Targeted pytest observed HTTP 200 for both pages | Pass | `tests/test_admin.py` |
 
 ## Automated Test Mapping
 
@@ -53,4 +56,4 @@
 | `tests/test_recommendations.py` | Onboarding recommendations are stored without performance history |
 | `tests/test_admin.py` | Student denial and admin dashboard access |
 
-Latest recorded run: **11 passed**. Pytest also emitted SQLAlchemy deprecation warnings and model-name collection warnings; these did not fail the run. Pending cases have not been claimed as passed.
+Latest executed command: `.venv\Scripts\python.exe -m pytest -q` (**16 passed**). Pytest emitted SQLAlchemy deprecation and model-name collection warnings; they did not fail the run. Pending cases have not been claimed as passed.

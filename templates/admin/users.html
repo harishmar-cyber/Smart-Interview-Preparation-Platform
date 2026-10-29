@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <a href="{{ url_for('admin.dashboard') }}" class="small text-decoration-none">Admin dashboard</a>
+        <h1 class="h3 fw-bold mt-2 mb-1">User management</h1>
+        <p class="text-muted mb-0">Search student accounts and provision additional administrators.</p>
+    </div>
+
+    <section class="card-modern p-4 mb-4" aria-labelledby="createAdminHeading">
+        <h2 class="h5 fw-bold" id="createAdminHeading">Create administrator account</h2>
+        <p class="small text-muted">Only an authenticated administrator can create another admin login. Public registration remains student-only.</p>
+        <form method="POST" action="{{ url_for('admin.create_admin_user') }}">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="adminName">Full name</label>
+                    <input class="form-control" id="adminName" name="full_name" required minlength="2" maxlength="120">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="adminEmail">Email</label>
+                    <input class="form-control" id="adminEmail" name="email" type="email" required maxlength="150">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="adminPassword">Password</label>
+                    <input class="form-control" id="adminPassword" name="password" type="password" required minlength="8" autocomplete="new-password">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="adminConfirmPassword">Confirm password</label>
+                    <input class="form-control" id="adminConfirmPassword" name="confirm_password" type="password" required minlength="8" autocomplete="new-password">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3"><i class="fas fa-user-shield me-1"></i> Create admin login</button>
+        </form>
+    </section>
+
+    <section class="card-modern p-4 mb-4" aria-labelledby="adminAccountsHeading">
+        <h2 class="h5 fw-bold mb-3" id="adminAccountsHeading">Administrator accounts</h2>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>Name</th><th>Email</th><th>Created</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for admin in admins %}
+                    <tr>
+                        <td>{{ admin.full_name }}</td>
+                        <td>{{ admin.email }}</td>
+                        <td>{{ admin.created_at.strftime('%Y-%m-%d') if admin.created_at else '—' }}</td>
+                        <td><span class="badge {{ 'bg-success-subtle text-success' if admin.is_active else 'bg-danger-subtle text-danger' }}">{{ 'Active' if admin.is_active else 'Disabled' }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted py-3">No administrator accounts found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card-modern p-4" aria-labelledby="studentAccountsHeading">
+        <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-3">
+            <h2 class="h5 fw-bold mb-0" id="studentAccountsHeading">Student accounts</h2>
+            <form method="GET" action="{{ url_for('admin.users_list') }}" class="d-flex gap-2">
+                <label class="visually-hidden" for="userSearch">Search users</label>
+                <input class="form-control form-control-sm" id="userSearch" name="q" type="search" value="{{ search }}" placeholder="Name or email">
+                <button class="btn btn-sm btn-outline-primary" type="submit" aria-label="Search"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>Name</th><th>Email</th><th>Preferred role</th><th>Status</th><th class="text-end">Action</th></tr></thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="fw-semibold">{{ user.full_name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.preferred_job_role or '—' }}</td>
+                        <td><span class="badge {{ 'bg-success-subtle text-success' if user.is_active else 'bg-secondary-subtle text-secondary' }}">{{ 'Active' if user.is_active else 'Disabled' }}</span></td>
+                        <td class="text-end">
+                            <form method="POST" action="{{ url_for('admin.toggle_user_status', id=user.id) }}" onsubmit="return confirm('Change this student account status?')">
+                                <button class="btn btn-sm {{ 'btn-outline-danger' if user.is_active else 'btn-outline-success' }}" type="submit">{{ 'Deactivate' if user.is_active else 'Activate' }}</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No student accounts match this search.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

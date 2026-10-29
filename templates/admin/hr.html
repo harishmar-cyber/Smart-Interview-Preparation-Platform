@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage HR Questions | SmartPrep{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap mb-4">
+        <div>
+            <a href="{{ url_for('admin.dashboard') }}" class="small text-decoration-none">Admin dashboard</a>
+            <h1 class="h3 fw-bold mt-2 mb-1">HR question bank</h1>
+            <p class="text-muted mb-0">Manage behavioral and situational interview prompts.</p>
+        </div>
+        <a href="{{ url_for('admin.hr_create') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Add HR question
+        </a>
+    </div>
+
+    <div class="card-modern p-3 p-md-4">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr><th>Question</th><th>Category</th><th>Guidance</th><th class="text-end">Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for question in questions %}
+                    <tr>
+                        <td class="fw-semibold" style="min-width: 260px;">{{ question.question_text }}</td>
+                        <td><span class="badge bg-info-subtle text-dark">{{ question.category }}</span></td>
+                        <td class="text-muted small" style="min-width: 180px;">{{ question.answer_tips|truncate(100) if question.answer_tips else 'No tips added' }}</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.hr_edit', id=question.id) }}" aria-label="Edit question">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('admin.hr_delete', id=question.id) }}" class="d-inline" onsubmit="return confirm('Delete this HR question?')">
+                                <button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Delete question">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted py-5">No HR questions yet. Add one to get started.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

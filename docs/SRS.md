@@ -84,6 +84,7 @@ Status refers to the current repository snapshot.
 | FR-018 | The system shall protect state-changing requests against CSRF. | Requests without a valid token are rejected outside test configuration. | Implemented |
 | FR-019 | The system shall allow administrators to manage category records and category metadata. | Admin can create, edit, and delete categories. | Not implemented; seeded categories are used |
 | FR-020 | The system shall provide a persisted daily preparation streak and date/category analytics filters. | Streaks and filters are computed from dated activity. | Not implemented |
+| FR-021 | An authenticated administrator shall be able to provision another administrator account. | Valid details create an active admin with a unique email and hashed password; students and unauthenticated users cannot use the operation. | Implemented |
 
 ### 3.1 Use Case Descriptions
 
@@ -175,6 +176,7 @@ Foreign keys and relationship cascades are defined in the model modules. The dat
 | FR-012–013 | `services/recommendation_service.py` | `tests/test_recommendations.py` covers onboarding |
 | FR-014–016 | `routes/admin.py` | Admin authorization automated; CRUD scenarios remain pending |
 | FR-017–018 | `routes/auth.py`, `app.py`, `templates/base.html` | Profile/CSRF manual cases remain pending |
+| FR-021 | `routes/admin.py`, `templates/admin/users.html` | `tests/test_admin.py` verifies admin creation and student denial |
 
 ## 9. Acceptance Criteria
 
