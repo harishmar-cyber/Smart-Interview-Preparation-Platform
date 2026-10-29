@@ -45,6 +45,7 @@
 | TC-036 | FR-021 | Provision an additional admin | Admin is logged in | Submit the admin creation form with valid details | Unique email and matching password of at least 8 characters | New account has admin role and hashed password | Targeted pytest observed redirect, admin role, and verified password hash | Pass | `tests/test_admin.py` |
 | TC-037 | FR-003, FR-021 | Deny student admin provisioning | Student is logged in | POST the admin creation endpoint | Valid-looking admin details | Request is denied and no admin account is created | Targeted pytest observed redirect and no account | Pass | `tests/test_admin.py` |
 | TC-038 | FR-015 | Render HR administration pages | Admin is logged in | Open `/admin/hr` and `/admin/users` | Empty test database | Both pages render with their forms and empty states | Targeted pytest observed HTTP 200 for both pages | Pass | `tests/test_admin.py` |
+| TC-039 | FR-015 | Manage coding problems from admin | Admin is logged in | Open coding list/create/edit; create then update a problem | Valid test-case JSON array | Pages render and create/edit changes persist | Full pytest observed list, create, and edit success including solution explanation | Pass | `tests/test_admin.py` |
 
 ## Automated Test Mapping
 
@@ -56,4 +57,4 @@
 | `tests/test_recommendations.py` | Onboarding recommendations are stored without performance history |
 | `tests/test_admin.py` | Student denial and admin dashboard access |
 
-Latest executed command: `.venv\Scripts\python.exe -m pytest -q` (**16 passed**). Pytest emitted SQLAlchemy deprecation and model-name collection warnings; they did not fail the run. Pending cases have not been claimed as passed.
+Latest executed command: `.venv\Scripts\python.exe -m pytest -q` (**17 passed**). Pytest emitted SQLAlchemy deprecation and model-name collection warnings; they did not fail the run. Pending cases have not been claimed as passed.

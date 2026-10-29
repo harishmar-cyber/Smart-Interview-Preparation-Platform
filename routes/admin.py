@@ -261,14 +261,33 @@ def coding_create():
         sample_output = request.form.get('sample_output', '')
         constraints = request.form.get('constraints', '')
         hints = request.form.get('hints', '')
+        solution_explanation = request.form.get('solution_explanation', '').strip()
         starter_code = request.form.get('starter_code', '')
         test_cases_raw = request.form.get('test_cases_json', '[]')
 
-        # Validate JSON
         try:
-            json.loads(test_cases_raw)
-        except Exception:
+            test_cases = json.loads(test_cases_raw)
+        except (TypeError, ValueError):
             flash("Invalid JSON format for test cases.", "danger")
+            return render_template('admin/coding_form.html', problem=None)
+
+        if not title or not slug or not description or not category:
+            flash("Title, slug, description, and category are required.", "danger")
+            return render_template('admin/coding_form.html', problem=None)
+        if difficulty not in {'Easy', 'Medium', 'Hard'}:
+            flash("Choose a valid difficulty level.", "danger")
+            return render_template('admin/coding_form.html', problem=None)
+        if not isinstance(test_cases, list) or not test_cases or any(
+            not isinstance(case, dict) or 'input' not in case or 'expected' not in case
+            for case in test_cases
+        ):
+            flash("Test cases must be a non-empty JSON array with input and expected values.", "danger")
+            return render_template('admin/coding_form.html', problem=None)
+        duplicate = CodingProblem.query.filter(
+            (CodingProblem.title == title) | (CodingProblem.slug == slug)
+        ).first()
+        if duplicate:
+            flash("A coding problem with this title or slug already exists.", "danger")
             return render_template('admin/coding_form.html', problem=None)
 
         problem = CodingProblem(
@@ -283,6 +302,7 @@ def coding_create():
             sample_output=sample_output,
             constraints=constraints,
             hints=hints,
+            solution_explanation=solution_explanation,
             starter_code=starter_code,
             test_cases_json=test_cases_raw,
             created_at=datetime.utcnow()
@@ -309,16 +329,31 @@ def coding_edit(id):
         problem.sample_output = request.form.get('sample_output', '')
         problem.constraints = request.form.get('constraints', '')
         problem.hints = request.form.get('hints', '')
+        problem.solution_explanation = request.form.get('solution_explanation', '').strip()
         problem.starter_code = request.form.get('starter_code', '')
         test_cases_raw = request.form.get('test_cases_json', '[]')
 
         try:
-            json.loads(test_cases_raw)
-            problem.test_cases_json = test_cases_raw
-        except Exception:
+            test_cases = json.loads(test_cases_raw)
+        except (TypeError, ValueError):
             flash("Invalid JSON for test cases.", "danger")
             return render_template('admin/coding_form.html', problem=problem)
 
+        if not isinstance(test_cases, list) or not test_cases or any(
+            not isinstance(case, dict) or 'input' not in case or 'expected' not in case
+            for case in test_cases
+        ):
+            flash("Test cases must be a non-empty JSON array with input and expected values.", "danger")
+            return render_template('admin/coding_form.html', problem=problem)
+        duplicate = CodingProblem.query.filter(
+            ((CodingProblem.title == problem.title) | (CodingProblem.slug == problem.slug))
+            & (CodingProblem.id != problem.id)
+        ).first()
+        if duplicate:
+            flash("A coding problem with this title or slug already exists.", "danger")
+            return render_template('admin/coding_form.html', problem=problem)
+
+        problem.test_cases_json = test_cases_raw
         db.session.commit()
         flash("Coding problem updated successfully!", "success")
         return redirect(url_for('admin.coding_list'))

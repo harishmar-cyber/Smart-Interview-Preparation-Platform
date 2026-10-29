@@ -174,7 +174,7 @@ Foreign keys and relationship cascades are defined in the model modules. The dat
 | FR-010 | `routes/hr.py`, `models/hr.py` | Manual scenarios listed |
 | FR-011 | `routes/analytics.py`, `services/progress_service.py` | Manual scenarios listed |
 | FR-012–013 | `services/recommendation_service.py` | `tests/test_recommendations.py` covers onboarding |
-| FR-014–016 | `routes/admin.py` | Admin authorization automated; CRUD scenarios remain pending |
+| FR-014–016 | `routes/admin.py`, `templates/admin/` | Admin question/test and coding CRUD routes are present; coding list/create/edit are covered in `tests/test_admin.py` |
 | FR-017–018 | `routes/auth.py`, `app.py`, `templates/base.html` | Profile/CSRF manual cases remain pending |
 | FR-021 | `routes/admin.py`, `templates/admin/users.html` | `tests/test_admin.py` verifies admin creation and student denial |
 

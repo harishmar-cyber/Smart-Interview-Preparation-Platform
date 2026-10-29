@@ -1,4 +1,4 @@
-from models import User, db
+from models import CodingProblem, User, db
 
 from tests.conftest import login
 
@@ -99,3 +99,58 @@ def test_student_cannot_create_an_admin(app, client, student):
     assert response.status_code == 302
     with app.app_context():
         assert User.query.filter_by(email="unauthorized@example.test").first() is None
+
+
+def test_admin_coding_pages_and_problem_crud(app, client):
+    with app.app_context():
+        admin = User(
+            full_name="Test Administrator",
+            email="admin@example.test",
+            role="admin",
+            is_active=True,
+        )
+        admin.set_password("SecurePass123")
+        db.session.add(admin)
+        db.session.commit()
+    login(client, email="admin@example.test")
+
+    assert client.get("/admin/coding").status_code == 200
+    assert client.get("/admin/coding/create").status_code == 200
+    response = client.post(
+        "/admin/coding/create",
+        data={
+            "title": "Sum a Number",
+            "slug": "sum-a-number",
+            "description": "Read and print one integer.",
+            "difficulty": "Easy",
+            "category": "Basic Programming",
+            "test_cases_json": '[{"input": "1", "expected": "1"}]',
+            "solution_explanation": "Read the input and print it.",
+        },
+    )
+
+    assert response.status_code == 302
+    with app.app_context():
+        problem = CodingProblem.query.filter_by(slug="sum-a-number").one()
+        problem_id = problem.id
+        assert problem.solution_explanation == "Read the input and print it."
+
+    assert client.get(f"/admin/coding/{problem_id}/edit").status_code == 200
+    edit_response = client.post(
+        f"/admin/coding/{problem_id}/edit",
+        data={
+            "title": "Sum One Number",
+            "slug": "sum-one-number",
+            "description": "Read and print one integer.",
+            "difficulty": "Easy",
+            "category": "Basic Programming",
+            "test_cases_json": '[{"input": "2", "expected": "2"}]',
+            "solution_explanation": "Read and return the input value.",
+        },
+    )
+
+    assert edit_response.status_code == 302
+    with app.app_context():
+        updated = db.session.get(CodingProblem, problem_id)
+        assert updated.slug == "sum-one-number"
+        assert updated.solution_explanation == "Read and return the input value."
